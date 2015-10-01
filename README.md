@@ -1,5 +1,5 @@
 # Sevirus
-A tool for reprojection of Seviri and pixel extraction for Seviri and ASCAT products.
+A cross-platform tool for reprojection of Seviri and pixel extraction for Seviri and ASCAT products.
 
 
 Download releases from
