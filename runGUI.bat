@@ -1,0 +1,1 @@
+java -Xmx2048m -cp seviritool.jar org.ntua.seviri.SeviriLauncher

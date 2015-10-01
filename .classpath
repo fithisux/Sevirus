@@ -33,7 +33,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="var" path="M2_REPO"/>
-	<classpathentry kind="lib" path="C:/workspace/javacsv/javacsv.jar"/>
 	<classpathentry kind="lib" path="C:/langs/jdk8/lib/tools.jar"/>
+	<classpathentry kind="lib" path="C:/workspace/aberystwyth-projects/javacsv/javacsv.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

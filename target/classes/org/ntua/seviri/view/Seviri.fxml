@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- 
 
  	Copyright (c) ${date} Dr. Vasileios I. Anagnostopoulos.
@@ -20,8 +21,6 @@
    Vasileios I. Anagnostopoulos - initial API and implementation under subcontract for Aberystwyth University
 
  -->
-<?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
