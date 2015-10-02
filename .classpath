@@ -35,5 +35,6 @@
 	<classpathentry kind="var" path="M2_REPO"/>
 	<classpathentry kind="lib" path="C:/langs/jdk8/lib/tools.jar"/>
 	<classpathentry kind="lib" path="C:/workspace/aberystwyth-projects/javacsv/javacsv.jar"/>
+	<classpathentry kind="lib" path="C:/workspace/aberystwyth-projects/controlsfx-8.40.10-20151001.115513-485.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
