@@ -215,7 +215,7 @@ public class MainApp {
 		String input_folder = this.seviri_folder_textfield.getText();
 		String output_folder = this.output_folder_textfield.getText();
 		String places_file = this.points_file_textfield.getText();
-		String[] seviri_files = seviri_files = (new File(input_folder)).list();
+		final String[] seviri_files  = (new File(input_folder)).list();
 
 		try {
 			final GeosProcessor processor = new GeosProcessor(static_folder);
@@ -324,7 +324,7 @@ public class MainApp {
 	public void nuovo(GeosProcessor processor, String country_name) {
 		String input_folder = this.seviri_folder_textfield.getText();
 		String output_folder = this.output_folder_textfield.getText();
-		String[] seviri_files = seviri_files = (new File(input_folder)).list();
+		final String[] seviri_files  = (new File(input_folder)).list();
 		if (seviri_files.length == 0) {
 			FxDialogs.showError("Problematic conversion", "No Seviri found");
 			return;
