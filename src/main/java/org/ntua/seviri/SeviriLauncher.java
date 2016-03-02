@@ -44,7 +44,7 @@ public class SeviriLauncher extends Application {
 		try {
 			// Load root layout from fxml file.
 			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(MainApp.class.getResource("view/Seviri.fxml"));			
+			loader.setLocation(getClass().getResource("/org/ntua/seviri/view/Seviri.fxml"));			
 			rootLayout = (AnchorPane) loader.load();
 			this.mainApp = loader.getController();
 			this.mainApp.setPrimaryStage(this.primaryStage);

@@ -108,6 +108,13 @@ public class MainApp {
 	}
 
 	@FXML
+	public void about_fcn() {
+		
+		FxDialogs.showInformation("Developer team.",
+				"Dr. Vasileios Anagnostopoulos (NTUA DKMS GROUP).\nDr George Petropoulos (ABERYSTWYTH UNIVERSITY).");
+	}
+	
+	@FXML
 	public void output_folder_fcn() {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Output folder for georeferencing seviri files.");
