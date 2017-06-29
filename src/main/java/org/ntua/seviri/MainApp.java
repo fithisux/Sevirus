@@ -79,7 +79,7 @@ public class MainApp {
 	@FXML
 	public void initialize() {
 		ObservableList<String> options = FXCollections.observableArrayList(
-				"Euro", "SAme", "SAfr", "NAfr");
+				"Euro", "SAme", "SAfr", "NAfr", "Global");
 		this.region_combobox.getItems().addAll(options);
 		this.region_combobox.getSelectionModel().select(0);
 	}

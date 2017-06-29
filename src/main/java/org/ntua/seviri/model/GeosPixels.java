@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.geotools.data.DataStore;
@@ -81,6 +82,44 @@ public class GeosPixels {
 			}
 			mapper.put(geoarea,geofref_coord);
 		}			
+		
+		int globalsize = 3712;
+		double COFF = 1856 ;
+		double LOFF = 1856 ;
+		double CFAC = 13642337;
+		double LFAC = 13642337;
+		int scale = 1 << 16;
+		double p1 = 42164;
+		double p2 = 1.006803;
+		double p3 = 1737121856;
+		GeosPixels extra_coord=new GeosPixels();				
+		extra_coord.multipolygon=null;
+		double[] lat = new double[globalsize*globalsize];
+		double[] lon = new double[globalsize*globalsize];
+		extra_coord.loci=new ArrayList<>();	
+		int index=0;
+		for (int i = 0; i < globalsize; i++) {
+			double x = (i+1 - COFF) * scale / CFAC ;
+			double cosx = Math.cos(Math.toRadians(x));
+			double sinx = Math.sin(Math.toRadians(x));
+			for (int j = 0; j < globalsize; j++) {
+				double y = (j+1 - LOFF) * scale / LFAC ;
+						double cosy = Math.cos(Math.toRadians(y));
+						double siny = Math.sin(Math.toRadians(y));
+						double sd = Math.sqrt(Math.pow(p1 * cosx * cosy, 2) - (Math.pow(cosy,2) + p2 * Math.pow(siny,2)) * p3);
+						double sn = (p1 * cosx * cosy -sd) / (Math.pow(cosy,2)  + p2 * Math.pow(siny,2));
+						double s1 = p1 - sn * cosx * cosy;
+						double s2 = sn * sinx * cosx;
+						double s3 = -sn * sinx;
+						double sxy = Math.sqrt(s1*s1 + s2*s2);
+						double glon = Math.toDegrees(Math.atan( s2 / s1));
+						double glat = Math.toDegrees(Math.atan( p2 * (s3 / sxy)));
+						Point point=new Point(glat,glon);
+						Locus locus=new Locus(point,index++);
+						extra_coord.loci.add(locus);				
+			}
+		}
+		mapper.put("Global",extra_coord);
 		return mapper;
 	}
 	

@@ -1,32 +1,76 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<repositories>
+</repositories>
   <modelVersion>4.0.0</modelVersion>
   <groupId>ICCS</groupId>
   <artifactId>Sevirus</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <dependencies>
-  	<dependency>
-  		<groupId>org.esa.beam</groupId>
-  		<artifactId>beam-csv-dataio</artifactId>
-  		<version>5.0</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.esa.beam</groupId>
-  		<artifactId>beam-netcdf</artifactId>
-  		<version>5.0.6</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.esa.beam</groupId>
-  		<artifactId>beam-gpf</artifactId>
-  		<version>5.0.5</version>
-  	</dependency>
+    <!-- https://mvnrepository.com/artifact/org.geotools/gt-main -->
     <dependency>
-      <groupId>org.controlsfx</groupId>
-      <artifactId>controlsfx</artifactId>
-      <version>8.40.10</version>
+    	<groupId>com.vividsolutions</groupId>
+    	<artifactId>jts</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.esa.beam</groupId>
+    	<artifactId>beam-csv-dataio</artifactId>
+    	<type>pom.lastUpdated</type>
+    </dependency>
+    <dependency>
+    	<groupId>org.geotools</groupId>
+    	<artifactId>gt-main</artifactId>
+    	<type>pom.lastUpdated</type>
+    </dependency>
+    <dependency>
+    	<groupId>org.controlsfx</groupId>
+    	<artifactId>controlsfx</artifactId>
+    	<version>8.40.12</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.esa.beam</groupId>
+    	<artifactId>beam-gpf</artifactId>
+    	<version>5.0.7</version>
     </dependency>
   </dependencies>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+    			<groupId>org.esa.beam</groupId>
+    			<artifactId>beam-netcdf</artifactId>
+    			<version>5.0.6</version>
+    			<type>pom.lastUpdated</type>
+    		</dependency>
+    		<dependency>
+    			<groupId>org.esa.beam</groupId>
+    			<artifactId>beam-csv-dataio</artifactId>
+    			<version>5.0</version>
+    			<type>pom.lastUpdated</type>
+    		</dependency>
+    		<dependency>
+    			<groupId>com.vividsolutions</groupId>
+    			<artifactId>jts</artifactId>
+    			<version>1.13</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>org.geotools</groupId>
+    			<artifactId>gt-main</artifactId>
+    			<version>17.1</version>
+    			<type>pom.lastUpdated</type>
+    		</dependency>
+    		<dependency>
+    			<groupId>org.controlsfx</groupId>
+    			<artifactId>controlsfx</artifactId>
+    			<version>8.40.12</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>org.esa.beam</groupId>
+    			<artifactId>beam-gpf</artifactId>
+    			<version>5.0.7</version>
+    		</dependency>
+    	</dependencies>
+    </dependencyManagement>
 </project>
