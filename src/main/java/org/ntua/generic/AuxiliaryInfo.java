@@ -28,28 +28,56 @@ import com.csvreader.CsvWriter;
 
 public class AuxiliaryInfo {
 	public String fileName;	
-	public List<Reading> readings;
+	public double[][] readings;
 	public String timing;
 	public double threshold;
 	public String[] bandnames;
 	
 	public void saveToCSV() throws IOException{
-		CsvWriter csvOutput = new CsvWriter(new FileWriter(this.fileName,false), '\t');		
-		for(String bandname : bandnames){
-			csvOutput.write(bandname);
-		}		
-		csvOutput.write("LAT");
-		csvOutput.write("LON");		
-		csvOutput.endRecord();			
-		for(Reading reading : readings){
-			for(int i=0;i<reading.values.length;i++){
-				csvOutput.write(Double.toString(reading.values[i]));
-			}
-			csvOutput.write(Double.toString(reading.getLocus().getPoint().getLatitude()));
-			csvOutput.write(Double.toString(reading.getLocus().getPoint().getLongitude()));
-			csvOutput.endRecord();
+		boolean firstTime=true;
+		File file = new File(fileName);
+		FileOutputStream fileOutputStream = new FileOutputStream(file);
+		// if file doesnt exists, then create it
+		if (!file.exists()) {
+			file.createNewFile();
 		}
-		csvOutput.close();
+		String [] fieldValues = new String[bandnames.length+2];
+		System.arraycopy(bandnames, 0, fieldValues, 0, bandnames.length);		
+		fieldValues[bandnames.length] = "Lat";
+		fieldValues[bandnames.length+1] = "Lon";		
+		writeFields(fileOutputStream, fieldValues);		
+		for(double[] reading : readings){			
+			for(int i=0; i< fieldValues.length ; i++) {
+				if(Double.isNaN(reading[i])) {					
+					fieldValues[i]="0";
+				} else {
+					fieldValues[i] =Float.toString((float) reading[i]);
+				}
+				//fieldValues[i] =Double.toString(reading[i]);
+			}
+			
+			if (firstTime) {
+				for(String fieldValue : fieldValues){
+					System.out.println(fieldValue);
+				}
+				firstTime = false;
+			}
+			writeFields(fileOutputStream, fieldValues);
+		}
+		fileOutputStream.close();
 
+	}
+	
+	private void writeFields(FileOutputStream fileOutputStream, String [] fieldValues) throws IOException {
+		boolean firstField = true;
+		for(String fieldValue : fieldValues){
+			if (firstField) {
+				firstField = false;
+			} else {
+				fileOutputStream.write("\t".getBytes());
+			}
+			fileOutputStream.write(fieldValue.getBytes());			
+		}
+		fileOutputStream.write("\n".getBytes());
 	}
 }

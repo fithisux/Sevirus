@@ -70,19 +70,12 @@ public class MainApp {
 	TextField points_file_textfield;
 	@FXML
 	ComboBox country_combo_box;
-	@FXML
-	ComboBox region_combobox;
 
 	int selected_index = -1;
 	Map<String, MultiPolygon> countries = null;
 
 	@FXML
-	public void initialize() {
-		ObservableList<String> options = FXCollections.observableArrayList(
-				"Euro", "SAme", "SAfr", "NAfr", "Global");
-		this.region_combobox.getItems().addAll(options);
-		this.region_combobox.getSelectionModel().select(0);
-	}
+	public void initialize() {}
 
 	/**
 	 * Opens a dialog to edit details for the specified person. If the user
@@ -201,14 +194,8 @@ public class MainApp {
 	@FXML
 	public void export_fcn() {
 		String static_folder = this.static_folder_textfield.getText();
-		String input_folder = this.seviri_folder_textfield.getText();
-		String output_folder = this.output_folder_textfield.getText();
-		String regionstr = (String) this.region_combobox.getSelectionModel()
-				.getSelectedItem();
-		String[] seviri_files = seviri_files = (new File(input_folder)).list();
 		try {
 			final GeosProcessor processor = new GeosProcessor(static_folder);
-			this.setCountryPixels(processor.area_mapper.get(regionstr));
 			this.nuovo(processor, "TOTAL");
 		} catch (IOException ex) {
 			FxDialogs.showWarning("Problematic run", "Could not run tool");
@@ -294,22 +281,6 @@ public class MainApp {
 		return this.my_country_pixels;
 	}
 
-	public void loadCountryPixels() throws IOException {
-		String static_folder = this.static_folder_textfield.getText();
-		String shapefile = this.shape_folder_textfield.getText();
-		String input_folder = this.seviri_folder_textfield.getText();
-		String output_folder = this.output_folder_textfield.getText();
-		String[] seviri_files = seviri_files = (new File(input_folder)).list();
-		final GeosProcessor processor = new GeosProcessor(static_folder);
-		String country_name = (String) this.country_combo_box
-				.getSelectionModel().getSelectedItem();
-		final String regionstr = (String) this.region_combobox
-				.getSelectionModel().getSelectedItem();
-		GeosPixels country_pixels = processor.area_mapper.get(regionstr)
-				.maskIt(countries.get(country_name));
-		this.setCountryPixels(country_pixels);
-	}
-
 	@FXML
 	public void execute_seviri_fcn() {
 		String static_folder = this.static_folder_textfield.getText();
@@ -332,8 +303,9 @@ public class MainApp {
 		String input_folder = this.seviri_folder_textfield.getText();
 		String output_folder = this.output_folder_textfield.getText();
 		final String[] seviri_files  = (new File(input_folder)).list();
+		final Map<String, MultiPolygon> countries = this.countries;
 		if (seviri_files.length == 0) {
-			FxDialogs.showError("Problematic conversion", "No Seviri found");
+			FxDialogs.showError("Problematic conversion", "No Seviri files found");
 			return;
 		}
 
@@ -351,23 +323,18 @@ public class MainApp {
 						}
 
 						updateProgress(step, steps);
+						MultiPolygon country_polygon = null;
 						if (!country_name.equals("TOTAL")) {
-							step++;
-							updateMessage("Masking . . .");
-							try {
-								loadCountryPixels();
-							} catch (IOException ex) {
-								return ex.getMessage();
-							}
-							updateProgress(step, steps);
-							updateMessage("Mask finished.");
+							country_polygon = countries.get(country_name); 
 						}
-						GeosPixels country_pixels = getCountryPixels();
+							
+							
+						System.out.println("Seviri num of files" + seviri_files.length);
 						for (int i = 0; i < seviri_files.length; i++) {
 							try {
 								processor.doConversion(input_folder + "/"
 										+ seviri_files[i], output_folder,
-										country_name, country_pixels);
+										country_name, country_polygon);
 							} catch (GeosException ex) {
 								return ex.getMessage();
 							}

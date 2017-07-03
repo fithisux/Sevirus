@@ -99,46 +99,35 @@ public class GeosProcessor extends AbstractProcessor{
 	}
 	
 
-	public void doConversion(String fileName, String outputFolder,String country_name, GeosPixels country_pixels) throws GeosException {
+	public void doConversion(String fileName, String outputFolder,String country_name, MultiPolygon country_polygon) throws GeosException {
 		try {		
-			AuxiliaryInfo info=this.readme(fileName,outputFolder,country_name,country_pixels);
+			System.out.println("Converting "+fileName);
+			String name = (new File(fileName)).getName();
+			String geographical_area = name.split("_")[4];			
+
+			GeosPixels geos_pixels=area_mapper.get(geographical_area);
+			if (country_polygon != null) {
+				geos_pixels = geos_pixels.maskIt(country_polygon);
+			}
+			AuxiliaryInfo info=this.readme(fileName,outputFolder,country_name, geos_pixels);
+			System.out.println("Converted product "+fileName);
 			if(info == null){
 				throw new GeosException("cannot find area");
 			}	
-			info.saveToCSV();			
-			org.ntua.headless.RunCSVConverter.saveToDimap(info.fileName, info.fileName.substring(0, info.fileName.length()-3)+"dim");
+			System.out.println("Start csv "+fileName);
+			info.saveToCSV();		
+			System.out.println("End csv "+fileName);
+//			System.out.println("Start Dimap "+fileName);
+//			org.ntua.headless.RunCSVConverter.saveToDimap(info.fileName, info.fileName.substring(0, info.fileName.length()-3)+"dim");
+//			System.out.println("End Dimap "+fileName);
 		} catch (IOException e) {
 			throw new GeosProcessor.GeosException(e.getMessage());
 		}
-	}
-
-	
-	
-	public static AuxiliaryInfo toAuxiliaryInfo(double[][] bands,GeosPixels geos_pixels){
-		List<Reading> readings=new ArrayList<>();
-		for (Locus locus : geos_pixels.loci) {
-			double[] values=new double[bands.length];
-			for(int i=0;i<values.length;i++){
-				values[i]=bands[i][locus.getIndex()];
-			}
-			
-			readings.add(new Reading(locus,values));
-		}
+	}	
 		
-		
-		AuxiliaryInfo info=new AuxiliaryInfo();
-		info.readings=readings;
-		info.fileName="";
-		info.timing="";
-		info.threshold=5;
-		return info;
-	}
-	
-	
-	
 	
 	public AuxiliaryInfo readme(String fileName,String outputFolder,
-			String country_name, GeosPixels country_pixels) throws IOException {
+			String country_name, GeosPixels geos_pixels) throws IOException {
 		String name = (new File(fileName)).getName();
 		String product_type = name.split("_")[3];
 		String geographical_area = name.split("_")[4];
@@ -151,35 +140,43 @@ public class GeosProcessor extends AbstractProcessor{
 		// timing += ":" + temptiming.substring(12, 14);
 		timing += "Z";
 
-		GeosPixels geos_pixels=area_mapper.get(geographical_area);
-		
 		Product product = ProductIO.readProduct(fileName);
-		String[] bandnames = product.getBandNames();
+		String[] bandNames = product.getBandNames();
 		product.closeProductReader();
-
-		double[][] bands = new double[bandnames.length][];
-		for (int k = 0; k < bandnames.length; k++) {
-			bands[k] = GeosPixels.readBand(fileName, bandnames[k]);			
+		System.out.println("Having read product "+fileName);
+		
+		for(String bandName : bandNames) {
+			System.out.println("Reading band "+bandName);
 		}
-		
-		
+		double[][] bands = new double[bandNames.length][];
+		for (int k = 0; k < bandNames.length; k++) {
+			bands[k] = GeosPixels.readBand(fileName, bandNames[k]);			
+		}
 				
-		List<Reading> readings=new ArrayList<>();
+		System.out.println("Bands read "+fileName);
+				
+		double[][] readings=new double[geos_pixels.loci.size()][bands.length+2];
+		System.out.println("Readings for "+fileName+" are "+geos_pixels.loci.size());
+		int index=0;
 		for (Locus locus : geos_pixels.loci) {
-			double[] values=new double[bands.length];
-			for(int i=0;i<values.length;i++){
-				values[i]=bands[i][locus.getIndex()];
+			for(int i=0;i<bands.length;i++){
+				readings[index][i]=bands[i][locus.getIndex()];				
 			}
-			
-			readings.add(new Reading(locus,values));
+			readings[index][bands.length] = locus.point.latitude;
+			readings[index][bands.length+1] = locus.point.longitude;
+			index++;
 		}
 		
-		AuxiliaryInfo temp=GeosProcessor.toAuxiliaryInfo(bands, country_pixels);
-		String countryTargetFilename = outputFolder + "/seviri_" + product_type + "_"
+		System.out.println("Start to auxiliary info "+fileName);
+		AuxiliaryInfo info=new AuxiliaryInfo();
+		info.readings=readings;
+		info.timing=timing;
+		info.threshold=5;
+		info.fileName=outputFolder + "/seviri_" + product_type + "_"
 				+ geographical_area + "_" + temptiming + "_"+country_name+".csv";
-		temp.fileName=countryTargetFilename;
-		temp.bandnames=bandnames;
-		return temp;
+		info.bandnames=bandNames;
+		System.out.println("End to auxiliary info "+fileName);
+		return info;		
 	}
 	
 	

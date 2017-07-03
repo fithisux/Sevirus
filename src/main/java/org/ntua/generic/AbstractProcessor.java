@@ -59,16 +59,17 @@ public abstract class AbstractProcessor {
 		return distance / 1000;
 	}
 	
-	public static Map<Place,Reading> scanFile(AuxiliaryInfo info, List<Place> places)
+	public static Map<Place,double[]> scanFile(AuxiliaryInfo info, List<Place> places)
 			throws IOException {
 		System.out.println("Product : " + info.fileName);		
-		Map<Place,Reading> assoc=new HashMap<>();		
+		Map<Place,double[]> assoc=new HashMap<>();		
 		System.out.println("Start scanning for sites");
-		for (Place p : places) {
+		for (Place place : places) {
 			double distance = 0;
-			Reading selected = null;
-			for (Reading reading : info.readings) {
-				double temp = AbstractProcessor.vincenty4(p.point, reading.locus.point);
+			double[] selected = null;
+			for (double[] reading : info.readings) {
+				Point readingPoint = new Point(reading[reading.length-2],reading[reading.length-1]);
+				double temp = AbstractProcessor.vincenty4(place.point, readingPoint);
 				if ((selected == null) || (temp < distance)) {
 					distance = temp;
 					selected = reading;
@@ -76,7 +77,7 @@ public abstract class AbstractProcessor {
 			}
 
 			if (distance <= info.threshold) {
-				assoc.put(p, selected);
+				assoc.put(place, selected);
 			}
 		}
 		System.out.println("Finished scanning for sites");
@@ -87,7 +88,7 @@ public abstract class AbstractProcessor {
 	
 	Map<String,CsvWriter> outputs=new HashMap<>();
 	
-	public void filter(AuxiliaryInfo info,Map<Place,Reading> pin,String csvFile)
+	public void filter(AuxiliaryInfo info,Map<Place,double[]> pin,String csvFile)
 			throws IOException {
 		if(pin.isEmpty()) return;		
 		File f=new File(csvFile);
@@ -106,12 +107,10 @@ public abstract class AbstractProcessor {
 		} else {
 			csvOutput=outputs.get(csvFile);
 		}
-		for(Map.Entry<Place, Reading> entry : pin.entrySet()){
-			for(int i=0;i<entry.getValue().values.length;i++){
-				csvOutput.write(Double.toString(entry.getValue().values[i]));
+		for(Map.Entry<Place, double[]> entry : pin.entrySet()) {
+			for(double value : entry.getValue()) {
+				csvOutput.write(Double.toString(value));
 			}
-			csvOutput.write(Double.toString(entry.getValue().locus.point.latitude));
-			csvOutput.write(Double.toString(entry.getValue().locus.point.longitude));
 			csvOutput.write(entry.getKey().name);
 			csvOutput.write(info.timing);
 			csvOutput.write(info.fileName);
@@ -146,7 +145,7 @@ public abstract class AbstractProcessor {
 	
 	public void process(String fileName,List<Place> places,String csvFile) throws IOException{
 		AuxiliaryInfo info=this.readme(fileName,"","",null);
-		Map<Place,Reading> assoc=AbstractProcessor.scanFile(info, places);
+		Map<Place,double[]> assoc=AbstractProcessor.scanFile(info, places);
 		this.filter(info,assoc,csvFile);
 		
 	}	

@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.geotools.data.DataStore;
@@ -73,8 +74,7 @@ public class GeosPixels {
 			double[] lon = GeosPixels.readBand(geofref_lon, "LON");
 			geofref_coord.loci=new ArrayList<>();	
 			for (int l = 0; l < lat.length; l++) {
-				boolean include = !Double.isNaN(lat[l])	&& !Double.isNaN(lon[l]);
-				if(include){
+				if(!Double.isNaN(lat[l]) && !Double.isNaN(lon[l])){
 					Point point=new Point(lat[l],lon[l]);
 					Locus locus=new Locus(point,l);
 					geofref_coord.loci.add(locus);
@@ -94,8 +94,6 @@ public class GeosPixels {
 		double p3 = 1737121856;
 		GeosPixels extra_coord=new GeosPixels();				
 		extra_coord.multipolygon=null;
-		double[] lat = new double[globalsize*globalsize];
-		double[] lon = new double[globalsize*globalsize];
 		extra_coord.loci=new ArrayList<>();	
 		int index=0;
 		for (int i = 0; i < globalsize; i++) {
@@ -106,7 +104,12 @@ public class GeosPixels {
 				double y = (j+1 - LOFF) * scale / LFAC ;
 						double cosy = Math.cos(Math.toRadians(y));
 						double siny = Math.sin(Math.toRadians(y));
-						double sd = Math.sqrt(Math.pow(p1 * cosx * cosy, 2) - (Math.pow(cosy,2) + p2 * Math.pow(siny,2)) * p3);
+						
+						double sdsquared = Math.pow(p1 * cosx * cosy, 2) - (Math.pow(cosy,2) + p2 * Math.pow(siny,2)) * p3;
+						if(sdsquared < 0) {
+							sdsquared = 0;
+						}
+						double sd = Math.sqrt(sdsquared);
 						double sn = (p1 * cosx * cosy -sd) / (Math.pow(cosy,2)  + p2 * Math.pow(siny,2));
 						double s1 = p1 - sn * cosx * cosy;
 						double s2 = sn * sinx * cosx;
@@ -114,12 +117,13 @@ public class GeosPixels {
 						double sxy = Math.sqrt(s1*s1 + s2*s2);
 						double glon = Math.toDegrees(Math.atan( s2 / s1));
 						double glat = Math.toDegrees(Math.atan( p2 * (s3 / sxy)));
+						//System.out.println(glat+";"+glon);
 						Point point=new Point(glat,glon);
 						Locus locus=new Locus(point,index++);
 						extra_coord.loci.add(locus);				
 			}
 		}
-		mapper.put("Global",extra_coord);
+		mapper.put("MSG-Disk",extra_coord);
 		return mapper;
 	}
 	
@@ -156,25 +160,19 @@ public class GeosPixels {
 		}
 		geofref_coord.multipolygon=multipolygon;
 		geofref_coord.loci=new ArrayList<>();
-		System.out.println("1");
+		System.out.println("Size pre mask = "+this.loci.size());
 		//int index=0;
 			
 		Insider insider=new Insider(multipolygon);
-		for(Iterator<Locus> it=this.loci.iterator();it.hasNext();){
-			Locus locus=it.next();
+		for(Locus locus : this.loci){
 			Point point=locus.getPoint();
 			Coordinate coordinate=new Coordinate(point.getLongitude(),point.getLatitude());
-			//boolean include=multipolygon.intersects(gf.createPoint(coordinate));
-			//System.out.println(index+" offf "+this.loci.size());
-			//index++;
 			com.vividsolutions.jts.geom.Point pt=GeosPixels.gf.createPoint(coordinate);
-			//if(multipolygon.contains(pt)){
 			if(insider.contains(pt)){
-				geofref_coord.loci.add(locus);
-				it.remove();
+				geofref_coord.loci.add(locus);				
 			}
 		}			
-		System.out.println("2");
+		System.out.println("Size post mask = "+geofref_coord.loci.size());
 		
 		return geofref_coord;
 	}
@@ -201,7 +199,11 @@ public class GeosPixels {
 			if (band_values[i] == missing_value) {
 				vals[i] = Double.NaN;
 			} else {
+				
 				vals[i] = ((double) band_values[i]) / ((double) scaling_factor);
+//				if (bandName.equals("FVC_err")) {
+//					System.out.println(vals[i]);;
+//				}
 			}
 		}
 

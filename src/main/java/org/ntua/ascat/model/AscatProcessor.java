@@ -93,14 +93,17 @@ public class AscatProcessor extends AbstractProcessor{
 		}
 		
 		
-		List<Reading> readings=new ArrayList<>();
+		double[][] readings=new double[loci.size()][bands.length+2];
+		System.out.println("Readings for "+fileName+" are "+loci.size());
+		int index=0;
 		for (Locus locus : loci) {
-			double[] values=new double[bands.length];
+			double[] values=new double[bands.length+2];
 			for(int i=0;i<values.length;i++){
-				values[i]=bands[i][locus.getIndex()];
+				readings[index][i]=bands[i][locus.getIndex()];
 			}
-			
-			readings.add(new Reading(locus,values));
+			readings[index][bands.length] = locus.point.latitude;
+			readings[index][bands.length+1] = locus.point.longitude;
+			index++;
 		}
 		
 		

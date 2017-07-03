@@ -12,11 +12,6 @@
     	<artifactId>jts</artifactId>
     </dependency>
     <dependency>
-    	<groupId>org.esa.beam</groupId>
-    	<artifactId>beam-csv-dataio</artifactId>
-    	<type>pom.lastUpdated</type>
-    </dependency>
-    <dependency>
     	<groupId>org.geotools</groupId>
     	<artifactId>gt-main</artifactId>
     	<type>pom.lastUpdated</type>
@@ -24,12 +19,22 @@
     <dependency>
     	<groupId>org.controlsfx</groupId>
     	<artifactId>controlsfx</artifactId>
-    	<version>8.40.12</version>
-    </dependency>
+    	</dependency>
     <dependency>
     	<groupId>org.esa.beam</groupId>
     	<artifactId>beam-gpf</artifactId>
-    	<version>5.0.7</version>
+    	</dependency>
+    <dependency>
+    	<groupId>org.esa.beam</groupId>
+    	<artifactId>beam-core</artifactId>
+    	</dependency>
+    <dependency>
+    	<groupId>org.esa.beam</groupId>
+    	<artifactId>beam-netcdf</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.esa.beam</groupId>
+    	<artifactId>beam-csv-dataio</artifactId>
     </dependency>
   </dependencies>
     <properties>
@@ -41,14 +46,7 @@
     		<dependency>
     			<groupId>org.esa.beam</groupId>
     			<artifactId>beam-netcdf</artifactId>
-    			<version>5.0.6</version>
-    			<type>pom.lastUpdated</type>
-    		</dependency>
-    		<dependency>
-    			<groupId>org.esa.beam</groupId>
-    			<artifactId>beam-csv-dataio</artifactId>
-    			<version>5.0</version>
-    			<type>pom.lastUpdated</type>
+    			<version>5.0.8</version>
     		</dependency>
     		<dependency>
     			<groupId>com.vividsolutions</groupId>
@@ -68,8 +66,18 @@
     		</dependency>
     		<dependency>
     			<groupId>org.esa.beam</groupId>
+    			<artifactId>beam-core</artifactId>
+    			<version>5.0.6-SNAPSHOT</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>org.esa.beam</groupId>
     			<artifactId>beam-gpf</artifactId>
     			<version>5.0.7</version>
+    		</dependency>
+    		<dependency>
+    			<groupId>org.esa.beam</groupId>
+    			<artifactId>beam-csv-dataio</artifactId>
+    			<version>5.0</version>
     		</dependency>
     	</dependencies>
     </dependencyManagement>

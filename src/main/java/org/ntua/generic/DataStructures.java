@@ -70,29 +70,6 @@ public class DataStructures {
 		}				
 	}
 	
-	public static class Reading {
-
-		public Locus locus;
-		public double[] values;
-		
-		public Reading(Locus locus,double[] values){
-			this.locus=locus;
-			this.values=values;
-		}
-		
-		public Reading clone(){
-			return new Reading(this.locus.clone(),Arrays.copyOf(this.values, this.values.length));
-		}
-
-		public Locus getLocus() {
-			return locus;
-		}
-
-		public double[] getValues() {
-			return values;
-		}
-	}
-
 	public static class Place {
 
 		public Point point;
