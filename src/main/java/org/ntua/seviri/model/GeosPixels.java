@@ -40,14 +40,20 @@ import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.filter.Filter;
 import org.ntua.generic.DataStructures.*;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+//import org.opengis.feature.simple.SimpleFeature;
+//import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.IncludeFilter;
+import org.opengis.geometry.coordinate.GeometryFactory;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
+//import com.vividsolutions.jts.geom.Coordinate;
+//import com.vividsolutions.jts.geom.Geometry;
+//import com.vividsolutions.jts.geom.GeometryFactory;
+//import com.vividsolutions.jts.geom.MultiPolygon;
+//import com.vividsolutions.jts.geom.Polygon;
 
 public class GeosPixels {
 	public List<Locus> loci;
@@ -127,31 +133,6 @@ public class GeosPixels {
 		return mapper;
 	}
 	
-	
-	public static class Insider {
-		MultiPolygon multipolygon;
-		Polygon[] polygons;
-		Geometry[] envelopes;
-		public Insider(MultiPolygon multipolygon){
-			this.multipolygon=multipolygon;
-			this.polygons=new Polygon[this.multipolygon.getNumGeometries()];
-			this.envelopes=new Geometry[this.multipolygon.getNumGeometries()];
-			for(int n=0;n<this.polygons.length;n++){
-				this.polygons[n]=(Polygon) this.multipolygon.getGeometryN(n);
-				this.envelopes[n]=this.polygons[n].getEnvelope();
-			}
-		}
-		
-		public boolean contains(com.vividsolutions.jts.geom.Point pt){
-			for(int n=0;n<this.polygons.length;n++){
-				if(this.envelopes[n].contains(pt) && this.polygons[n].contains(pt)){
-					return true;
-				}
-			}
-			return false;
-		}
-	}
-	
 	public GeosPixels maskIt(MultiPolygon multipolygon){	
 		
 		GeosPixels geofref_coord=new GeosPixels();
@@ -161,14 +142,12 @@ public class GeosPixels {
 		geofref_coord.multipolygon=multipolygon;
 		geofref_coord.loci=new ArrayList<>();
 		System.out.println("Size pre mask = "+this.loci.size());
-		//int index=0;
 			
-		Insider insider=new Insider(multipolygon);
 		for(Locus locus : this.loci){
 			Point point=locus.getPoint();
-			Coordinate coordinate=new Coordinate(point.getLongitude(),point.getLatitude());
+			Coordinate2D coordinate=new Coordinate2D(point.getLongitude(),point.getLatitude());
 			com.vividsolutions.jts.geom.Point pt=GeosPixels.gf.createPoint(coordinate);
-			if(insider.contains(pt)){
+			if(multipolygon.contains(pt)){
 				geofref_coord.loci.add(locus);				
 			}
 		}			
@@ -221,17 +200,17 @@ public class GeosPixels {
 	    String typeName = dataStore.getTypeNames()[0];
 
 	    FeatureSource source = dataStore.getFeatureSource( typeName );
+	    IncludeFilter filter = Filter.INCLUDE; // ECQL.toFilter("BBOX(THE_GEOM, 10,20,30,40)")
 
-	    FeatureCollection collection =  source.getFeatures();
-	    FeatureIterator<SimpleFeature> results = collection.features();
-	    Map<String,com.vividsolutions.jts.geom.MultiPolygon> countries=new HashMap<>();
-	    try {
-	        while (results.hasNext()) {
+	    FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source.getFeatures(filter);
+
+	    Map<String,Polygon> countries = new HashMap<String,Polygon>();
+	    try  (FeatureIterator<SimpleFeature> features = collection.features()) {
+	    	while (features.hasNext()) {
 	        	MultiPolygon multipolygon=null;
 	        	String name=null;
-	            SimpleFeature feature = (SimpleFeature) results.next();
+	            SimpleFeature feature = (SimpleFeature) features.next();
 	            
-	            //System.out.println("ZZ "+feature.getID());
 	            for(Object ff :feature.getAttributes()){
 	            	
 	            	if(ff instanceof com.vividsolutions.jts.geom.MultiPolygon){
@@ -241,33 +220,16 @@ public class GeosPixels {
 	            	}            	
 	            }
 	            
-	            if(name.length()==2){	           
-	        		countries.put(name, multipolygon);
-	            }
-	            //String code = feature.getAttribute("Codigo_SSC").toString();
-	            //System.out.println( code );
-	           //System.exit(0);
+	            countries.put(name, multipolygon);
 	        }
 	    } finally {
-	        results.close();
+	    	
 	    }
+	   
 	    //dataStore.dispose();
 	    for(Entry<String,MultiPolygon> entryyy : countries.entrySet()){
 			System.out.println("Country : "+entryyy.getKey());
 	    }
 	    return countries;
 	}
-	
-	
-	public static Map<String,GeosPixels>  maskCountries(String shapefile,GeosPixels geofref_coords) throws IOException {
-		Map<String,MultiPolygon> countries=GeosPixels.loadCountries(shapefile);
-		
-		Map<String,GeosPixels> mapper=new HashMap<>();
-		for(Map.Entry<String,MultiPolygon> countryinfo : countries.entrySet()){
-			GeosPixels temp = geofref_coords.maskIt(countryinfo.getValue());
-			mapper.put(countryinfo.getKey(),temp);
-		}
-		return mapper;
-	}
-	
 }
