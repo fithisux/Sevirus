@@ -120,14 +120,17 @@ public class GeosPixels {
 				double sd = Math.sqrt(sdsquared);
 				double sn = (p1 * cosx * cosy - sd) / (Math.pow(cosy, 2) + p2 * Math.pow(siny, 2));
 				double s1 = p1 - sn * cosx * cosy;
-				double s2 = sn * sinx * cosx;
-				double s3 = -sn * sinx;
+				double s2 = sn * sinx * cosy;
+				double s3 = -sn * siny;
 				double sxy = Math.sqrt(s1 * s1 + s2 * s2);
 				double glon = Math.toDegrees(Math.atan(s2 / s1));
 				double glat = Math.toDegrees(Math.atan(p2 * (s3 / sxy)));
 				// System.out.println(glat+";"+glon);
 				Coordinate point = new Coordinate(glon, glat);
 				Locus locus = new Locus(point, index++);
+//				if ( (locus.coordinate.y > 40) && (locus.coordinate.y < 45) && (locus.coordinate.x > 11) && (locus.coordinate.x < 13) )  {
+//					System.out.println(locus.coordinate.x + "<---->" + locus.coordinate.y);
+//				}
 				extra_coord.loci.add(locus);
 			}
 		}
@@ -146,7 +149,10 @@ public class GeosPixels {
 		System.out.println("Size pre mask = " + this.loci.size());
 
 		for (Locus locus : this.loci) {
+			
 			Point pt = JTSFactoryFinder.getGeometryFactory().createPoint(locus.coordinate);
+			
+			
 			if (multipolygon.contains(pt)) {
 				geofref_coord.loci.add(locus);
 			}
@@ -220,8 +226,10 @@ public class GeosPixels {
 						name = (String) ff;
 					}
 				}
-
-				countries.put(name, multipolygon);
+				
+				if(name.length() ==2 ) {
+					countries.put(name, multipolygon);
+				}
 			}
 		} finally {
 
