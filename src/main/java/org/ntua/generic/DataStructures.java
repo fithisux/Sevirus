@@ -22,75 +22,44 @@ package org.ntua.generic;
 
 import java.util.Arrays;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 
 public class DataStructures {
-	public static class Point {
 
-		public double latitude;
-		public double longitude;
-		
-		public Point clone(){
-			return new Point(this.latitude,this.longitude);
-		}
-		
-		public Point(double lat,double lon){
-			this.latitude=lat;
-			this.longitude=lon;
-		}
-
-		public double getLatitude() {
-			return latitude;
-		}
-
-		public double getLongitude() {
-			return longitude;
-		}
-	}
 
 	public static class Locus {
 
-		public Point point;
+		public Coordinate coordinate;
 		public int index;
 		
-		public Locus(Point point ,int index){
-			this.point=point;
+		public Locus(Coordinate coordinate ,int index){
+			this.coordinate=coordinate;
 			this.index=index;
 		}
 		
 		public Locus clone(){
-			return new Locus(this.point.clone(),this.index);
+			return new Locus((Coordinate) this.coordinate.clone(),this.index);
 		}
 
-		public Point getPoint() {
-			return point;
-		}
-
-		public int getIndex() {
-			return index;
-		}				
+					
 	}
 	
 	public static class Place {
 
-		public Point point;
+		public Coordinate coordinate;
 		public String name;
 		
-		public Place(Point point ,String name){
-			this.point=point;
+		public Place(Coordinate coordinate ,String name){
+			this.coordinate=coordinate;
 			this.name=name;
 		}
 		
 		public Place clone(){
-			return new Place(this.point.clone(),this.name);
+			return new Place((Coordinate) this.coordinate.clone(),this.name);
 		}
 
-		public Point getPoint() {
-			return point;
-		}
-
-		public String getName() {
-			return name;
-		}
+		
 			
 	}
 	

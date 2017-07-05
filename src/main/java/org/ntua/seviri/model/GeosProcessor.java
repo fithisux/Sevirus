@@ -20,45 +20,16 @@
  */
 package org.ntua.seviri.model;
 
-import java.io.*;
-import java.util.*;
-import java.util.Map.Entry;
-import java.nio.file.*;
-import com.vividsolutions.jts.geom.*;
-import org.ntua.ascat.model.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Map;
+
 import org.ntua.generic.AbstractProcessor;
 import org.ntua.generic.AuxiliaryInfo;
-import org.ntua.generic.DataStructures.*;
-import org.opengis.feature.simple.SimpleFeature;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductData.UTC;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import java.io.*;
-import java.util.*;
-import java.nio.file.*;
-import com.csvreader.CsvReader;
-import com.csvreader.CsvWriter;
-import java.io.*;
-import java.util.*;
-import java.nio.file.*;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductData.UTC;
-import org.esa.beam.util.ProductUtils;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
+import org.ntua.generic.DataStructures.Locus;
+
+import com.vividsolutions.jts.geom.MultiPolygon;
 
 public class GeosProcessor extends AbstractProcessor{
 
@@ -140,10 +111,7 @@ public class GeosProcessor extends AbstractProcessor{
 		// timing += ":" + temptiming.substring(12, 14);
 		timing += "Z";
 
-		Product product = ProductIO.readProduct(fileName);
-		String[] bandNames = product.getBandNames();
-		product.closeProductReader();
-		System.out.println("Having read product "+fileName);
+		String[] bandNames = {"FVC", "FVC_QF", "FVC_err"};
 		
 		for(String bandName : bandNames) {
 			System.out.println("Reading band "+bandName);
@@ -160,10 +128,10 @@ public class GeosProcessor extends AbstractProcessor{
 		int index=0;
 		for (Locus locus : geos_pixels.loci) {
 			for(int i=0;i<bands.length;i++){
-				readings[index][i]=bands[i][locus.getIndex()];				
+				readings[index][i]=bands[i][locus.index];				
 			}
-			readings[index][bands.length] = locus.point.latitude;
-			readings[index][bands.length+1] = locus.point.longitude;
+			readings[index][bands.length] = locus.coordinate.y;
+			readings[index][bands.length+1] = locus.coordinate.x;
 			index++;
 		}
 		

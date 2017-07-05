@@ -23,7 +23,6 @@ package org.ntua.generic;
 import java.io.*;
 import java.util.*;
 import org.ntua.generic.DataStructures.*;
-import org.ntua.ascat.model.*;
 import com.csvreader.CsvWriter;
 
 public class AuxiliaryInfo {

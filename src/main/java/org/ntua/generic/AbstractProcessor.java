@@ -31,15 +31,13 @@ import java.util.Map;
 
 import org.ntua.generic.DataStructures.*;
 import org.ntua.seviri.model.GeosPixels;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalPosition;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
+import com.vividsolutions.jts.geom.Coordinate;
 
 
 
@@ -47,13 +45,13 @@ public abstract class AbstractProcessor {
 	
 	
 
-	public static double vincenty4(Point point1, Point point2) {
+	public static double vincenty4(Coordinate coordinate1, Coordinate coordinate2) {
 		GeodeticCalculator geoCalc = new GeodeticCalculator();
 		Ellipsoid reference = Ellipsoid.WGS84;
-		GlobalPosition pointA = new GlobalPosition(point1.latitude,
-				point1.longitude, 0.0);
-		GlobalPosition userPos = new GlobalPosition(point2.latitude,
-				point2.longitude, 0.0);
+		GlobalPosition pointA = new GlobalPosition(coordinate1.y,
+				coordinate1.x, 0.0);
+		GlobalPosition userPos = new GlobalPosition(coordinate2.y,
+				coordinate2.x, 0.0);
 		double distance = geoCalc.calculateGeodeticCurve(reference, userPos,
 				pointA).getEllipsoidalDistance();
 		return distance / 1000;
@@ -68,8 +66,8 @@ public abstract class AbstractProcessor {
 			double distance = 0;
 			double[] selected = null;
 			for (double[] reading : info.readings) {
-				Point readingPoint = new Point(reading[reading.length-2],reading[reading.length-1]);
-				double temp = AbstractProcessor.vincenty4(place.point, readingPoint);
+				Coordinate readingPoint = new Coordinate(reading[reading.length-1],reading[reading.length-2]);
+				double temp = AbstractProcessor.vincenty4(place.coordinate, readingPoint);
 				if ((selected == null) || (temp < distance)) {
 					distance = temp;
 					selected = reading;
@@ -130,9 +128,9 @@ public abstract class AbstractProcessor {
 		while (csv_places.readRecord()) {
 			double lat = Double.parseDouble(csv_places.get("lat"));
 			double lon = Double.parseDouble(csv_places.get("lon"));
-			Point point=new Point(lat,lon);
+			Coordinate coordinate=new Coordinate(lon, lat);
 			String name = "P" + Integer.toString(index++);
-			Place place = new Place(point,name);
+			Place place = new Place(coordinate,name);
 			places.add(place);
 		}
 		System.out.println("finished reading places");
