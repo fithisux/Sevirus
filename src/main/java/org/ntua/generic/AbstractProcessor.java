@@ -20,23 +20,22 @@
  */
 package org.ntua.generic;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
+import javafx.scene.control.Alert;
 import org.ntua.generic.DataStructures.*;
 import org.ntua.seviri.model.GeosPixels;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalPosition;
-
-import com.csvreader.CsvReader;
-import com.csvreader.CsvWriter;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.locationtech.jts.geom.Coordinate;
 
 
 
@@ -82,55 +81,64 @@ public abstract class AbstractProcessor {
 	}
 	
 	String[] heads = null;
-	
-	Map<String,CsvWriter> outputs=new HashMap<>();
-	
+
 	public void filter(AuxiliaryInfo info,Map<Place,double[]> pin,String csvFile)
 			throws IOException {
 		if(pin.isEmpty()) return;		
 		File f=new File(csvFile);
-		CsvWriter csvOutput=null;
-		if(f.exists() && !f.isDirectory()) {
-			csvOutput = new CsvWriter(new FileWriter(csvFile, true),'\t');
-			for(String bandname : info.bandnames){
-				csvOutput.write(bandname);
-			}		
-			csvOutput.write("LAT");
-			csvOutput.write("LON");		
-			csvOutput.write("site_id");
-			csvOutput.write("sample_time");
-			csvOutput.write("filename");
-			csvOutput.endRecord();
-		} else {
-			csvOutput=outputs.get(csvFile);
-		}
-		for(Map.Entry<Place, double[]> entry : pin.entrySet()) {
-			for(double value : entry.getValue()) {
-				csvOutput.write(Double.toString(value));
+
+		if(!f.isFile() || f.isDirectory()) return;
+
+		StringWriter sw = new StringWriter();
+		CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+				.setHeader(new String[]{"LAT", "LON", "site_id", "sample_time", "filename"})
+				.build();
+
+		try {
+			try (final CSVPrinter printer = new CSVPrinter(sw, csvFormat)) {
+				for (Map.Entry<Place, double[]> entry : pin.entrySet()) {
+					printer.printRecord(
+							Double.toString(entry.getValue()[0]),
+							Double.toString(entry.getValue()[1]),
+							entry.getKey().name,
+							info.timing,
+							info.fileName
+					);
+				}
 			}
-			csvOutput.write(entry.getKey().name);
-			csvOutput.write(info.timing);
-			csvOutput.write(info.fileName);
-			csvOutput.endRecord();				
-		}			
+		} catch (IOException ex) {
+		ex.printStackTrace();;
+//		Alert dlg = new Alert(Alert.AlertType.ERROR, "");
+//		dlg.setTitle("File problem.");
+//		dlg.getDialogPane().setContentText("Could not save data to file:\n" + f.getPath());
+//		dlg.initOwner(this.primaryStage);
+//		dlg.showAndWait();
+	}
 	}
 
 	
 	public static List<Place> readPlaces(String fileName) throws IOException {
+		var f = new File(fileName);
 		List<Place> places = new ArrayList<>();
 		System.out.println("start reading places");
 		int index = 0;
 		// read the places
-		CsvReader csv_places = new CsvReader(
-				(new File(fileName)).getAbsolutePath(), ',');
-		csv_places.readHeaders();
-		while (csv_places.readRecord()) {
-			double lat = Double.parseDouble(csv_places.get("lat"));
-			double lon = Double.parseDouble(csv_places.get("lon"));
-			Coordinate coordinate=new Coordinate(lon, lat);
-			String name = "P" + Integer.toString(index++);
-			Place place = new Place(coordinate,name);
-			places.add(place);
+
+		CSVFormat csvFormat = CSVFormat.RFC4180.withSkipHeaderRecord(true).builder()
+				.setHeader(new String[]{"lat", "lon"})
+				.build();
+
+		try (
+				Reader reader = Files.newBufferedReader(Paths.get(f.toURI())); CSVParser csvParser = new CSVParser(reader, csvFormat);) {
+			for (CSVRecord csvRecord : csvParser) {
+
+				double lat = Double.parseDouble(csvRecord.get("lat"));
+				double lon = Double.parseDouble(csvRecord.get("lon"));
+				Coordinate coordinate = new Coordinate(lon, lat);
+				String name = "P" + Integer.toString(index++);
+				Place place = new Place(coordinate, name);
+				places.add(place);
+			}
 		}
 		System.out.println("finished reading places");
 		return places;
@@ -145,12 +153,5 @@ public abstract class AbstractProcessor {
 		Map<Place,double[]> assoc=AbstractProcessor.scanFile(info, places);
 		this.filter(info,assoc,csvFile);
 		
-	}	
-	
-	public void closeCSVs(){
-		for(CsvWriter cc : this.outputs.values()){
-			cc.close();
-		}
 	}
-	
 }

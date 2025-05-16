@@ -38,7 +38,7 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.stage.Stage;
 import br.atualy.devolucaodevenda.util.*;
-import com.vividsolutions.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.MultiPolygon;
 
 public class MainApp {
 
@@ -227,7 +227,6 @@ public class MainApp {
 										+ seviri_files.length + " runs!");
 							}
 							updateMessage("Extracted all.");
-							processor.closeCSVs();
 							return null;
 						}
 					};

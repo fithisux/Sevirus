@@ -8,5 +8,5 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="DMD64 D Compiler v2.111.0" project-jdk-type="DMD2 SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="temurin-24" project-jdk-type="JavaSDK" />
 </project>

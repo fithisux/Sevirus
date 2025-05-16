@@ -30,7 +30,7 @@ import org.ntua.generic.AbstractProcessor;
 import org.ntua.generic.AuxiliaryInfo;
 import org.ntua.generic.DataStructures.Locus;
 
-import com.vividsolutions.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.MultiPolygon;
 
 public class GeosProcessor extends AbstractProcessor{
 

@@ -1,15 +1,18 @@
 package org.ntua.seviri;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.ntua.generic.DataStructures.Locus;
 import org.ntua.seviri.model.GeosPixels;
 
-import com.csvreader.CsvWriter;
-import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.locationtech.jts.geom.Coordinate;
 
 public class GlobalAreaCreator {
 
@@ -62,20 +65,22 @@ public class GlobalAreaCreator {
 		try {
 			String csvFile = args[0];
 			File f = new File(csvFile);
-			CsvWriter csvOutput = null;
-			if (f.exists() && !f.isDirectory()) {
-				csvOutput = new CsvWriter(new FileWriter(csvFile, true), '\t');
-				csvOutput.write("LON");
-				csvOutput.write("LAT");
-				csvOutput.endRecord();
-				for (Locus locus : extra_coord.loci) {
-					csvOutput.write(Double.toString(locus.coordinate.x));
-					csvOutput.write(Double.toString(locus.coordinate.y));
-					csvOutput.endRecord();
-				}
-
-				csvOutput.close();
+			if (!f.exists() || f.isDirectory()) {
+				throw new RuntimeException("Bad file");
 			}
+			StringWriter sw = new StringWriter();
+			CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+					.setHeader(new String[]{"LON", "LAT"})
+					.build();
+				try (final CSVPrinter printer = new CSVPrinter(sw, csvFormat)) {
+					for (Locus locus : extra_coord.loci) {
+						printer.printRecord(
+								Double.toString(locus.coordinate.x),
+								Double.toString(locus.coordinate.y)
+						);
+					}
+				}
+				Files.writeString(Paths.get(f.toURI()), sw.toString().trim());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
