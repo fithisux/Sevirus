@@ -4,7 +4,7 @@
   <groupId>org.ntua</groupId>
   <artifactId>sevirus</artifactId>
   <name>sevirus</name>
-  <version>2.0.preview26</version>
+  <version>2.0.alpha1</version>
   <build>
     <plugins>
       <plugin>
@@ -61,8 +61,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.14.0</version>
         <configuration>
-          <source>23</source>
-          <target>23</target>
+          <source>24</source>
+          <target>24</target>
         </configuration>
       </plugin>
       <plugin>
@@ -119,16 +119,17 @@
     </repository>
   </repositories>
   <properties>
-    <jts.version>1.20.0</jts.version>
-    <maven.compiler.target>23</maven.compiler.target>
     <spotless.version>2.44.0.BETA4</spotless.version>
     <netcdfJavaVersion>5.8.0</netcdfJavaVersion>
     <maven.compiler.source>23</maven.compiler.source>
     <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <javafx.version>23.0.2</javafx.version>
     <slf4jVersion>2.0.17</slf4jVersion>
     <geotools.version>32.2</geotools.version>
     <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+    <jts.version>1.20.0</jts.version>
+    <maven.compiler.target>23</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <proj4j.version>1.4.0</proj4j.version>
+    <javafx.version>24.0.1</javafx.version>
   </properties>
 </project>

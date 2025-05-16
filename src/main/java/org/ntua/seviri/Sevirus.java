@@ -44,6 +44,7 @@ public class Sevirus extends Application {
         try {
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader();
+            System.out.println(org.ntua.seviri.SeviriLauncher.class.getResource("/view/Seviri.fxml"));
             loader.setLocation(org.ntua.seviri.SeviriLauncher.class.getResource("/view/Seviri.fxml"));
             rootLayout = (AnchorPane) loader.load();
             this.mainApp = loader.getController();
