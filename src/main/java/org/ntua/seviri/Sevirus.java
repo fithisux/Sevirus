@@ -20,25 +20,27 @@
  */
 package org.ntua.seviri;
 
-import java.io.IOException;
-import org.ntua.seviri.model.GeosProcessor;
-import javafx.scene.layout.AnchorPane;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.fxml.FXML;
+
+import java.io.IOException;
 
 public class Sevirus extends Application {
 
     public Stage primaryStage;
-    private AnchorPane rootLayout;
-
     @FXML
     MainApp mainApp;
+    private AnchorPane rootLayout;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     public void initRootLayout() {
         try {
@@ -57,7 +59,8 @@ public class Sevirus extends Application {
 
                 @Override
                 public void handle(WindowEvent event) {
-                    System.exit(0);;
+                    System.exit(0);
+                    ;
                 }
             });
             primaryStage.show();
@@ -71,11 +74,6 @@ public class Sevirus extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Seviri Pixel Extraction");
         initRootLayout();
-    }
-
-
-    public static void main(String[] args) {
-        launch(args);
     }
 
 }

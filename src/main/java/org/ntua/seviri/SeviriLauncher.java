@@ -22,7 +22,7 @@ package org.ntua.seviri;
 
 public class SeviriLauncher {
 
-	public static void main(String[] args) {
-		Sevirus.main(args);
-	}
+    public static void main(String[] args) {
+        Sevirus.main(args);
+    }
 }

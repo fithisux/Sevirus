@@ -1,14 +1,11 @@
 package br.atualy.devolucaodevenda.util;
 
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.*;
+import javafx.concurrent.Service;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
@@ -28,6 +25,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class FxDialogs {
+
+    public static final String YES = "Yes";
+    public static final String NO = "No";
+    public static final String OK = "OK";
+    public static final String CANCEL = "Cancel";
 
     public static void showInformation(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -91,12 +93,12 @@ public class FxDialogs {
 
         alert.showAndWait();
     }
-    
-    public static void showProgress(Stage parent,String title, String message, Service service) {
+
+    public static void showProgress(Stage parent, String title, String message, Service service) {
         Stage alert = new Stage();
         alert.initOwner(parent);
         alert.setResizable(true);
-        alert.initStyle(StageStyle.UTILITY);  
+        alert.initStyle(StageStyle.UTILITY);
         alert.setTitle(title);
         //alert.setHeaderText(title);
         //alert.setContentText(message);
@@ -105,7 +107,7 @@ public class FxDialogs {
         Button button = new Button("Dismiss:");
         label.textProperty().bind(service.messageProperty());
         ProgressBar progressbar = new ProgressBar();
-        progressbar.progressProperty().bind(service.progressProperty());        
+        progressbar.progressProperty().bind(service.progressProperty());
         progressbar.setMaxWidth(Double.MAX_VALUE);
         progressbar.setMaxHeight(Double.MAX_VALUE);
         GridPane.setVgrow(progressbar, Priority.ALWAYS);
@@ -119,29 +121,26 @@ public class FxDialogs {
                 expContent,
                 125,
                 100
-            );
-        alert.setScene(scene); //was expandable content        
+        );
+        alert.setScene(scene); //was expandable content
         button.disableProperty().bind(service.runningProperty());
         button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-            	System.out.println("closed");
+            @Override
+            public void handle(ActionEvent e) {
+                System.out.println("closed");
                 alert.close();
             }
         });
-        
-        alert.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST,new EventHandler<WindowEvent>() {
-            @Override public void handle(WindowEvent e) {
-            	System.out.println("close request");  
-            	e.consume();
+
+        alert.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent e) {
+                System.out.println("close request");
+                e.consume();
             }
         });
         alert.show();
     }
-
-    public static final String YES = "Yes";
-    public static final String NO = "No";
-    public static final String OK = "OK";
-    public static final String CANCEL = "Cancel";
 
     public static String showConfirm(String title, String message, String... options) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

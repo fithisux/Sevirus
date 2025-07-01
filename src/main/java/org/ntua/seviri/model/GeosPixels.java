@@ -20,33 +20,29 @@
  */
 package org.ntua.seviri.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.geotools.api.filter.Filter;
 import org.geotools.api.data.DataStore;
 import org.geotools.api.data.DataStoreFinder;
 import org.geotools.api.data.FeatureSource;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.IncludeFilter;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.ntua.generic.DataStructures.*;
-import org.geotools.api.feature.simple.SimpleFeature;
-import org.geotools.api.feature.simple.SimpleFeatureType;
-import org.locationtech.jts.geom.Point;
-import org.geotools.api.filter.IncludeFilter;
-import java.util.Collections;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.MultiPolygon;
-
+import org.locationtech.jts.geom.Point;
+import org.ntua.generic.DataStructures.Locus;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
 
 public class GeosPixels {
 
@@ -101,29 +97,6 @@ public class GeosPixels {
         return mapper;
     }
 
-    public GeosPixels maskIt(MultiPolygon multipolygon) {
-
-        GeosPixels geofref_coord = new GeosPixels();
-        if (multipolygon == null) {
-            System.out.println("!");
-        }
-        geofref_coord.multipolygon = multipolygon;
-        geofref_coord.loci = new ArrayList<>();
-        System.out.println("Size pre mask = " + this.loci.size());
-
-        for (Locus locus : this.loci) {
-
-            Point pt = JTSFactoryFinder.getGeometryFactory().createPoint(locus.coordinate);
-
-            if (multipolygon.contains(pt)) {
-                geofref_coord.loci.add(locus);
-            }
-        }
-        System.out.println("Size post mask = " + geofref_coord.loci.size());
-
-        return geofref_coord;
-    }
-
     public static double[] readBand(String filename, String bandName) throws IOException {
 
         NetcdfFile ncfile = NetcdfFile.open(filename);
@@ -175,9 +148,11 @@ public class GeosPixels {
         try (FeatureIterator<SimpleFeature> features = collection.features()) {
             while (features.hasNext()) {
 
-                SimpleFeature feature = (SimpleFeature) features.next();
+                SimpleFeature feature = features.next();
+                System.out.println(feature.getAttributeCount());
                 MultiPolygon countryShape = (MultiPolygon) feature.getAttribute(0);
-                String countryName = (String) feature.getAttribute(5);
+                String countryName = (String) feature.getAttribute(2);
+                System.out.println(countryName);
                 countries.put(countryName, countryShape);
             }
         }
@@ -189,5 +164,28 @@ public class GeosPixels {
             sortedCountries.put(countryName, countries.get(countryName));
         });
         return sortedCountries;
+    }
+
+    public GeosPixels maskIt(MultiPolygon multipolygon) {
+
+        GeosPixels geofref_coord = new GeosPixels();
+        if (multipolygon == null) {
+            System.out.println("!");
+        }
+        geofref_coord.multipolygon = multipolygon;
+        geofref_coord.loci = new ArrayList<>();
+        System.out.println("Size pre mask = " + this.loci.size());
+
+        for (Locus locus : this.loci) {
+
+            Point pt = JTSFactoryFinder.getGeometryFactory().createPoint(locus.coordinate);
+
+            if (multipolygon.contains(pt)) {
+                geofref_coord.loci.add(locus);
+            }
+        }
+        System.out.println("Size post mask = " + geofref_coord.loci.size());
+
+        return geofref_coord;
     }
 }

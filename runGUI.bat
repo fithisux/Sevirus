@@ -1,1 +1,1 @@
-java -Xmx2048m -cp seviritool.jar org.ntua.seviri.SeviriLauncher
+java -Xmx2048m -cp shade\sevirus-2.0.alpha1.jar org.ntua.seviri.SeviriLauncher

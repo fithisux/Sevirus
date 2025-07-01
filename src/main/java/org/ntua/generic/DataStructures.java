@@ -27,39 +27,38 @@ import org.locationtech.jts.geom.Coordinate;
 public class DataStructures {
 
 
-	public static class Locus {
+    public static class Locus {
 
-		public Coordinate coordinate;
-		public int index;
-		
-		public Locus(Coordinate coordinate ,int index){
-			this.coordinate=coordinate;
-			this.index=index;
-		}
-		
-		public Locus clone(){
-			return new Locus((Coordinate) this.coordinate.clone(),this.index);
-		}
+        public Coordinate coordinate;
+        public int index;
 
-					
-	}
-	
-	public static class Place {
+        public Locus(Coordinate coordinate, int index) {
+            this.coordinate = coordinate;
+            this.index = index;
+        }
 
-		public Coordinate coordinate;
-		public String name;
-		
-		public Place(Coordinate coordinate ,String name){
-			this.coordinate=coordinate;
-			this.name=name;
-		}
-		
-		public Place clone(){
-			return new Place((Coordinate) this.coordinate.clone(),this.name);
-		}
+        public Locus clone() {
+            return new Locus((Coordinate) this.coordinate.clone(), this.index);
+        }
 
-		
-			
-	}
-	
+
+    }
+
+    public static class Place {
+
+        public Coordinate coordinate;
+        public String name;
+
+        public Place(Coordinate coordinate, String name) {
+            this.coordinate = coordinate;
+            this.name = name;
+        }
+
+        public Place clone() {
+            return new Place((Coordinate) this.coordinate.clone(), this.name);
+        }
+
+
+    }
+
 }
