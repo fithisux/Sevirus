@@ -83,7 +83,6 @@ public class MainApp {
         chooser.setTitle("Folder with Seviri  files");
         File selectedDirectory = chooser.showDialog(this.primaryStage);
         if (selectedDirectory == null) {
-            return;
         } else {
             this.seviri_folder_textfield.setText(selectedDirectory
                     .getAbsolutePath());
@@ -104,7 +103,6 @@ public class MainApp {
         chooser.setTitle("Output folder for georeferencing seviri files.");
         File selectedDirectory = chooser.showDialog(this.primaryStage);
         if (selectedDirectory == null) {
-            return;
         } else {
             this.output_folder_textfield.setText(selectedDirectory
                     .getAbsolutePath());
@@ -117,7 +115,6 @@ public class MainApp {
         chooser.setTitle("Folder with static HDF5 lat/lon files.");
         File selectedDirectory = chooser.showDialog(this.primaryStage);
         if (selectedDirectory == null) {
-            return;
         } else {
             this.static_folder_textfield.setText(selectedDirectory
                     .getAbsolutePath());
@@ -133,7 +130,6 @@ public class MainApp {
         chooser.getExtensionFilters().add(extFilter);
         File selectedFile = chooser.showOpenDialog(this.primaryStage);
         if (selectedFile == null) {
-            return;
         } else {
 
             try {
@@ -160,7 +156,6 @@ public class MainApp {
             } catch (IOException e) {
                 FxDialogs.showWarning("Problematic shapefile",
                         "Could not read shapefile.");
-                return;
             }
         }
 
@@ -175,7 +170,6 @@ public class MainApp {
         chooser.getExtensionFilters().add(extFilter);
         File selectedFile = chooser.showOpenDialog(this.primaryStage);
         if (selectedFile == null) {
-            return;
         } else {
             this.points_file_textfield.setText(selectedFile.getAbsolutePath());
         }
@@ -190,7 +184,6 @@ public class MainApp {
             this.nuovo(processor, "TOTAL");
         } catch (IOException ex) {
             FxDialogs.showWarning("Problematic run", "Could not run tool");
-            return;
         }
     }
 
@@ -205,6 +198,7 @@ public class MainApp {
         try {
             final GeosProcessor processor = new GeosProcessor(static_folder);
             List<Place> places = AbstractProcessor.readPlaces(places_file);
+
 
             Service<String> service = new Service<String>() {
                 @Override
@@ -246,9 +240,13 @@ public class MainApp {
                     if (val != null) {
                         FxDialogs.showWarning("Problematic run",
                                 "Could not run tool");
-                        return;
                     }
                 }
+            });
+
+            service.setOnFailed(evt -> {
+                System.err.println("The task failed with the following exception:");
+                service.getException().printStackTrace(System.err);
             });
 
             FxDialogs.showProgress(this.primaryStage, "Progress Dialog", "Searching for runs",
@@ -257,7 +255,6 @@ public class MainApp {
 
         } catch (IOException ex) {
             FxDialogs.showWarning("Problematic run", "Could not run tool");
-            return;
         }
     }
 
@@ -297,7 +294,7 @@ public class MainApp {
             return;
         }
 
-        Service<String> service2 = new Service<String>() {
+        Service<String> service = new Service<String>() {
             @Override
             protected Task<String> createTask() {
                 return new Task<String>() {
@@ -315,7 +312,6 @@ public class MainApp {
                         if (!country_name.equals("TOTAL")) {
                             country_polygon = countries.get(country_name);
                         }
-
 
                         System.out.println("Seviri num of files" + seviri_files.length);
                         for (int i = 0; i < seviri_files.length; i++) {
@@ -337,21 +333,25 @@ public class MainApp {
             }
         };
 
-        service2.setOnSucceeded(new javafx.event.EventHandler<WorkerStateEvent>() {
+        service.setOnSucceeded(new javafx.event.EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent t) {
-                String val = service2.getValue();
+                String val = service.getValue();
 
                 if (val != null) {
                     FxDialogs.showWarning("Problematic run",
                             "Could not run tool");
-                    return;
                 }
             }
         });
+
+        service.setOnFailed(evt -> {
+            System.err.println("The task failed with the following exception:");
+            service.getException().printStackTrace(System.err);
+        });
         FxDialogs.showProgress(this.primaryStage, "Progress Dialog", "Searching for runs",
-                service2);
-        service2.start();
+                service);
+        service.start();
 
     }
 
@@ -371,7 +371,6 @@ public class MainApp {
 
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
-        ;
     }
 
 }

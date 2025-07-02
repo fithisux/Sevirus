@@ -7,6 +7,7 @@ import org.ntua.generic.DataStructures.Locus;
 import org.ntua.seviri.model.GeosPixels;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
@@ -28,7 +29,6 @@ public class GlobalAreaCreator {
         GeosPixels extra_coord = new GeosPixels();
         extra_coord.multipolygon = null;
         extra_coord.loci = new ArrayList<>();
-        int index = 0;
         for (int i = 0; i < globalsize; i++) {
             double x = (i + 1 - COFF) * scale / CFAC;
             double cosx = Math.cos(Math.toRadians(x));
@@ -50,13 +50,8 @@ public class GlobalAreaCreator {
                 double sxy = Math.sqrt(s1 * s1 + s2 * s2);
                 double glon = Math.toDegrees(Math.atan(s2 / s1));
                 double glat = Math.toDegrees(Math.atan(p2 * (s3 / sxy)));
-                // System.out.println(glat+";"+glon);
                 Coordinate point = new Coordinate(glon, glat);
-                Locus locus = new Locus(point, index++);
-                // if ( (locus.coordinate.y > 40) && (locus.coordinate.y < 45) &&
-                // (locus.coordinate.x > 11) && (locus.coordinate.x < 13) ) {
-                // System.out.println(locus.coordinate.x + "<---->" + locus.coordinate.y);
-                // }
+                Locus locus = new Locus(point, extra_coord.loci.size());
                 extra_coord.loci.add(locus);
             }
         }
@@ -64,22 +59,20 @@ public class GlobalAreaCreator {
         try {
             String csvFile = args[0];
             File f = new File(csvFile);
-            if (!f.exists() || f.isDirectory()) {
-                throw new RuntimeException("Bad file");
+            if (f.exists() || f.isDirectory()) {
+                throw new RuntimeException("Existing file or directory");
             }
-            StringWriter sw = new StringWriter();
             CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                     .setHeader(new String[]{"LON", "LAT"})
                     .build();
-            try (final CSVPrinter printer = new CSVPrinter(sw, csvFormat)) {
+            try (final CSVPrinter printer = new CSVPrinter(new FileWriter(csvFile), csvFormat)) {
                 for (Locus locus : extra_coord.loci) {
                     printer.printRecord(
-                            Double.toString(locus.coordinate.x),
-                            Double.toString(locus.coordinate.y)
+                            Double.toString(locus.coordinate().x),
+                            Double.toString(locus.coordinate().y)
                     );
                 }
             }
-            Files.writeString(Paths.get(f.toURI()), sw.toString().trim());
         } catch (IOException e) {
             e.printStackTrace();
         }

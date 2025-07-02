@@ -33,6 +33,7 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
+import org.ntua.generic.DataStructures;
 import org.ntua.generic.DataStructures.Locus;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -49,15 +50,15 @@ public class GeosPixels {
     public List<Locus> loci;
     public MultiPolygon multipolygon = null;
 
-    public static Map<String, GeosPixels> loadCoordinates(String geofolder) throws IOException {
+    public final static String[] GEOAREAS =  {"Euro", "SAme", "NAfr", "SAfr"};
 
-        String[] geoareas = {"Euro", "SAme", "NAfr", "SAfr"};
+    public static Map<String, GeosPixels> loadCoordinates(String geofolder) throws IOException {
         String geofref_lat = null;
         String geofref_lon = null;
 
         Map<String, GeosPixels> mapper = new HashMap<>();
 
-        for (String geoarea : geoareas) {
+        for (String geoarea : GEOAREAS) {
             geofref_lat = "HDF5_LSASAF_MSG_LAT_" + geoarea + "_4bytesPrecision";
             geofref_lon = "HDF5_LSASAF_MSG_LON_" + geoarea + "_4bytesPrecision";
 
@@ -71,29 +72,12 @@ public class GeosPixels {
             for (int l = 0; l < lat.length; l++) {
                 if (!Double.isNaN(lat[l]) && !Double.isNaN(lon[l])) {
                     Coordinate point = new Coordinate(lon[l], lat[l]);
-                    Locus locus = new Locus(point, l);
+                    DataStructures.Locus locus = new DataStructures.Locus(point, l);
                     geofref_coord.loci.add(locus);
                 }
             }
             mapper.put(geoarea, geofref_coord);
         }
-
-//		GeosPixels extra_coord = new GeosPixels();
-//		extra_coord.multipolygon = null;
-//		extra_coord.loci = new ArrayList<>();
-//		int index = 0;
-//		CsvReader csv_global = new CsvReader(
-//				(new File(geofolder + "/" + "global_locus.csv")).getAbsolutePath(), '\t');
-//		csv_global.readHeaders();
-//		while (csv_global.readRecord()) {
-//			double lon = Double.parseDouble(csv_global.get("LON"));
-//			double lat = Double.parseDouble(csv_global.get("LAT"));
-//			Coordinate coordinate=new Coordinate(lon, lat);
-//			Locus locus = new Locus(coordinate, index++);
-//			extra_coord.loci.add(locus);
-//		}
-//		csv_global.close();
-//		mapper.put("MSG-Disk", extra_coord);
         return mapper;
     }
 
@@ -147,7 +131,6 @@ public class GeosPixels {
         Map<String, MultiPolygon> countries = new HashMap<String, MultiPolygon>();
         try (FeatureIterator<SimpleFeature> features = collection.features()) {
             while (features.hasNext()) {
-
                 SimpleFeature feature = features.next();
                 System.out.println(feature.getAttributeCount());
                 MultiPolygon countryShape = (MultiPolygon) feature.getAttribute(0);
@@ -158,9 +141,9 @@ public class GeosPixels {
         }
 
         Map<String, MultiPolygon> sortedCountries = new HashMap<String, MultiPolygon>();
-        List<String> sortedCountryNames = new ArrayList<>(countries.keySet());
+        var sortedCountryNames = new ArrayList<>(countries.keySet());
         Collections.sort(sortedCountryNames);
-        sortedCountryNames.forEach((countryName) -> {
+        sortedCountryNames.forEach(countryName -> {
             sortedCountries.put(countryName, countries.get(countryName));
         });
         return sortedCountries;
@@ -178,7 +161,7 @@ public class GeosPixels {
 
         for (Locus locus : this.loci) {
 
-            Point pt = JTSFactoryFinder.getGeometryFactory().createPoint(locus.coordinate);
+            Point pt = JTSFactoryFinder.getGeometryFactory().createPoint(locus.coordinate());
 
             if (multipolygon.contains(pt)) {
                 geofref_coord.loci.add(locus);
