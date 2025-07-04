@@ -116,39 +116,6 @@ public class GeosPixels {
         }
     }
 
-    public static Map<String, MultiPolygon> loadCountries(String shapefile) throws IOException {
-        File file = new File(shapefile);
-        Map<String, Serializable> map = new HashMap<>();
-        map.put("url", file.toURI().toURL());
-
-        DataStore dataStore = DataStoreFinder.getDataStore(map);
-        String typeName = dataStore.getTypeNames()[0];
-
-        FeatureSource source = dataStore.getFeatureSource(typeName);
-        IncludeFilter filter = Filter.INCLUDE;
-
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source.getFeatures(filter);
-        Map<String, MultiPolygon> countries = new HashMap<String, MultiPolygon>();
-        try (FeatureIterator<SimpleFeature> features = collection.features()) {
-            while (features.hasNext()) {
-                SimpleFeature feature = features.next();
-                System.out.println(feature.getAttributeCount());
-                MultiPolygon countryShape = (MultiPolygon) feature.getAttribute(0);
-                String countryName = (String) feature.getAttribute(2);
-                System.out.println(countryName);
-                countries.put(countryName, countryShape);
-            }
-        }
-
-        Map<String, MultiPolygon> sortedCountries = new HashMap<String, MultiPolygon>();
-        var sortedCountryNames = new ArrayList<>(countries.keySet());
-        Collections.sort(sortedCountryNames);
-        sortedCountryNames.forEach(countryName -> {
-            sortedCountries.put(countryName, countries.get(countryName));
-        });
-        return sortedCountries;
-    }
-
     public GeosPixels maskIt(MultiPolygon multipolygon) {
 
         GeosPixels geofref_coord = new GeosPixels();

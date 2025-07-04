@@ -33,7 +33,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.ntua.generic.AbstractProcessor;
+import org.ntua.generic.ProcessorUtilities;
 import org.ntua.generic.DataStructures.Place;
 import org.ntua.seviri.model.GeosPixels;
 import org.ntua.seviri.model.GeosProcessor;
@@ -134,7 +134,7 @@ public class MainApp {
 
             try {
                 String shapefile = selectedFile.getAbsolutePath();
-                this.countries = GeosPixels.loadCountries(shapefile);
+                this.countries = ProcessorUtilities.loadCountries(shapefile);
 
                 if (this.countries.size() == 0) {
                     FxDialogs.showWarning("Empty shapefile",
@@ -197,7 +197,7 @@ public class MainApp {
 
         try {
             final GeosProcessor processor = new GeosProcessor(static_folder);
-            List<Place> places = AbstractProcessor.readPlaces(places_file);
+            List<Place> places = ProcessorUtilities.readPlaces(places_file);
 
 
             Service<String> service = new Service<String>() {

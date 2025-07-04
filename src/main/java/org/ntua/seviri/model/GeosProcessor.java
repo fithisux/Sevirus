@@ -23,15 +23,17 @@ package org.ntua.seviri.model;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.ntua.generic.AbstractProcessor;
+import org.ntua.generic.ProcessorUtilities;
 import org.ntua.generic.AuxiliaryInfo;
 import org.ntua.generic.DataStructures;
 import org.ntua.generic.DataStructures.Locus;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -40,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class GeosProcessor extends AbstractProcessor {
+public class GeosProcessor {
 
     public static final int THRESHOLD = 5;
     public static final Map<String, String[]> BANDS = ImmutableMap.of(
@@ -55,11 +57,32 @@ public class GeosProcessor extends AbstractProcessor {
     public GeosProcessor(String static_geofolder) throws IOException {
         this.static_geofolder = static_geofolder;
         this.area_mapper = GeosPixels.loadCoordinates(static_geofolder);
+        var temp = ProcessorUtilities.synthesizeGlobalCoverage();
+        this.area_mapper.put("MSG-Disk", temp);
+    }
 
-        var extraCoord = new GeosPixels();
-        extraCoord.loci = GeosProcessor.readGlobalLocus(static_geofolder+"/"+"global_locus.csv");
+    public void filter(AuxiliaryInfo info, Map<DataStructures.Place, double[]> pin, String csvFile)
+            throws IOException {
+        if (pin.isEmpty()) return;
+        File f = new File(csvFile);
 
-        this.area_mapper.put("MSG-Disk", extraCoord);
+        if (!f.isFile() || f.isDirectory()) return;
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(new String[]{"LAT", "LON", "site_id", "sample_time", "filename"})
+                .build();
+
+        try (final CSVPrinter printer = new CSVPrinter(new FileWriter(csvFile), csvFormat)) {
+            for (Map.Entry<DataStructures.Place, double[]> entry : pin.entrySet()) {
+                printer.printRecord(
+                        Double.toString(entry.getValue()[0]),
+                        Double.toString(entry.getValue()[1]),
+                        entry.getKey().name(),
+                        info.timing,
+                        info.csvFile
+                );
+            }
+        }
     }
 
     public void doConversion(String fileName, String outputFolder, String country_name, MultiPolygon country_polygon) throws GeosException {
@@ -92,27 +115,8 @@ public class GeosProcessor extends AbstractProcessor {
 
         GeosPixels geos_pixels = area_mapper.get(geographical_area);
         AuxiliaryInfo info = this.readme(fileName, "", "", geos_pixels);
-        Map<DataStructures.Place, double[]> assoc = AbstractProcessor.scanFile(info, places);
+        Map<DataStructures.Place, double[]> assoc = ProcessorUtilities.scanFile(info, places);
         this.filter(info, assoc, csvFile);
-    }
-
-    private static List<Locus> readGlobalLocus(String globalLocusFile) throws IOException {
-        var loci = new ArrayList<Locus>();
-
-        try (
-                Reader reader = Files.newBufferedReader(Paths.get(globalLocusFile)); CSVParser csvParser = new CSVParser(reader, CSVFormat.RFC4180.withHeader())) {
-            for (CSVRecord csvRecord : csvParser) {
-                double lon = Double.parseDouble(csvRecord.get("LON"));
-                double lat = Double.parseDouble(csvRecord.get("LAT"));
-                Coordinate coordinate=new Coordinate(lon, lat);
-                Locus locus = new Locus(coordinate, loci.size());
-                loci.add(locus);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return loci;
     }
 
     public AuxiliaryInfo readme(String fileName, String outputFolder,
