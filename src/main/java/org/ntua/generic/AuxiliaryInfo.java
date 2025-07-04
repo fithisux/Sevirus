@@ -29,14 +29,13 @@ public class AuxiliaryInfo {
 	public String csvFile;
 	public double[][] readings;
 	public String timing;
-	public double threshold;
-	public String[] bandnames;
+	public String[] bandNames;
 
 	public void saveToCSV() throws IOException {
-        String [] fieldValues = new String[bandnames.length+2];
-        System.arraycopy(bandnames, 0, fieldValues, 0, bandnames.length);
-        fieldValues[bandnames.length] = "Lat";
-        fieldValues[bandnames.length+1] = "Lon";
+        String [] fieldValues = new String[bandNames.length+2];
+        System.arraycopy(bandNames, 0, fieldValues, 0, bandNames.length);
+        fieldValues[bandNames.length] = "Lat";
+        fieldValues[bandNames.length+1] = "Lon";
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(fieldValues.clone())

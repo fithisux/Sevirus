@@ -27,11 +27,13 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.ntua.generic.ProcessorUtilities;
 import org.ntua.generic.DataStructures.Place;
@@ -60,6 +62,8 @@ public class MainApp {
     TextField points_file_textfield;
     @FXML
     ComboBox country_combo_box;
+    @FXML
+    TextField proximityThreshold;
 
     int selected_index = -1;
     Map<String, MultiPolygon> countries = null;
@@ -79,9 +83,7 @@ public class MainApp {
      */
     @FXML
     public void seviri_folder_fcn() {
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Folder with Seviri  files");
-        File selectedDirectory = chooser.showDialog(this.primaryStage);
+        File selectedDirectory = RetentionFileChooser.showDirOpenDialog(this.primaryStage);
         if (selectedDirectory == null) {
         } else {
             this.seviri_folder_textfield.setText(selectedDirectory
@@ -99,9 +101,7 @@ public class MainApp {
 
     @FXML
     public void output_folder_fcn() {
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Output folder for georeferencing seviri files.");
-        File selectedDirectory = chooser.showDialog(this.primaryStage);
+        File selectedDirectory = RetentionFileChooser.showDirOpenDialog(this.primaryStage);
         if (selectedDirectory == null) {
         } else {
             this.output_folder_textfield.setText(selectedDirectory
@@ -111,9 +111,7 @@ public class MainApp {
 
     @FXML
     public void static_folder_fcn() {
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("Folder with static HDF5 lat/lon files.");
-        File selectedDirectory = chooser.showDialog(this.primaryStage);
+        File selectedDirectory = RetentionFileChooser.showDirOpenDialog(this.primaryStage);
         if (selectedDirectory == null) {
         } else {
             this.static_folder_textfield.setText(selectedDirectory
@@ -123,12 +121,7 @@ public class MainApp {
 
     @FXML
     public void shape_file_fcn() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Folder with shape *.shp files.");
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-                "Shape files (*.shp)", "*.shp");
-        chooser.getExtensionFilters().add(extFilter);
-        File selectedFile = chooser.showOpenDialog(this.primaryStage);
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage, RetentionFileChooser.FilterMode.SHAPE_FILES);
         if (selectedFile == null) {
         } else {
 
@@ -163,12 +156,7 @@ public class MainApp {
 
     @FXML
     public void load_points_fcn() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Folder with csv *.csv files.");
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-                "CSV files (*.csv)", "*.csv");
-        chooser.getExtensionFilters().add(extFilter);
-        File selectedFile = chooser.showOpenDialog(this.primaryStage);
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage, RetentionFileChooser.FilterMode.CSV_FILES);
         if (selectedFile == null) {
         } else {
             this.points_file_textfield.setText(selectedFile.getAbsolutePath());
@@ -189,16 +177,32 @@ public class MainApp {
 
     @FXML
     public void extract_pixels_fcn() {
+        String thresholdText = this.proximityThreshold.getText();
+
+        double thresholdValue = 5;
+
+        try {
+            thresholdValue = Double.parseDouble(thresholdText);
+        } catch(NullPointerException | NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initStyle(StageStyle.UTILITY);
+            alert.setTitle("Error");
+            alert.setHeaderText("threshold is not a floating point");
+            alert.setContentText("Use a floating point number");
+            alert.showAndWait();
+            this.proximityThreshold.setText("5");
+            return;
+        }
         String static_folder = this.static_folder_textfield.getText();
         String input_folder = this.seviri_folder_textfield.getText();
         String output_folder = this.output_folder_textfield.getText();
         String places_file = this.points_file_textfield.getText();
         final String[] seviri_files = (new File(input_folder)).list();
+        final double threshold = thresholdValue;
 
         try {
             final GeosProcessor processor = new GeosProcessor(static_folder);
             List<Place> places = ProcessorUtilities.readPlaces(places_file);
-
 
             Service<String> service = new Service<String>() {
                 @Override
@@ -217,7 +221,7 @@ public class MainApp {
                                             + "/readings" + productType
                                             + ".csv";
                                     processor
-                                            .process(fileName, places, csvFile);
+                                            .process(fileName, places, csvFile, threshold);
                                 } catch (IOException ex) {
                                     return ex.getMessage();
                                 }

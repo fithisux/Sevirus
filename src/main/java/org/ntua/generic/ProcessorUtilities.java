@@ -111,7 +111,7 @@ public class ProcessorUtilities {
         return distance / 1000;
     }
 
-    public static Map<Place, double[]> scanFile(AuxiliaryInfo info, List<Place> places) {
+    public static Map<Place, double[]> scanFile(AuxiliaryInfo info, List<Place> places, double threshold) {
         System.out.println("Product : " + info.csvFile);
         Map<Place, double[]> assoc = new HashMap<>();
         System.out.println("Start scanning for places");
@@ -119,7 +119,14 @@ public class ProcessorUtilities {
             System.out.println("Start scanning for place: " + place.name());
             double distance = 0;
             double[] selected = null;
+            for(var bandName : info.bandNames) {
+                System.out.println(bandName);
+            }
+
             for (double[] reading : info.readings) {
+                if (Double.isNaN(reading[0]) || Double.isNaN(reading[reading.length - 1]) || Double.isNaN(reading[reading.length - 2])) {
+                    continue;
+                }
                 Coordinate readingPoint = new Coordinate(reading[reading.length - 1], reading[reading.length - 2]);
                 double temp = ProcessorUtilities.vincenty4(place.coordinate(), readingPoint);
                 if ((selected == null) || (temp < distance)) {
@@ -128,7 +135,9 @@ public class ProcessorUtilities {
                 }
             }
 
-            if (distance <= info.threshold) {
+            System.out.println("Distance: "+distance);
+
+            if (distance <= threshold) {
                 assoc.put(place, selected);
             }
         }

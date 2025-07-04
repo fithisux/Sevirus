@@ -22,10 +22,7 @@ package org.ntua.seviri.model;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.ntua.generic.ProcessorUtilities;
 import org.ntua.generic.AuxiliaryInfo;
@@ -35,10 +32,6 @@ import org.ntua.generic.DataStructures.Locus;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,28 +54,40 @@ public class GeosProcessor {
         this.area_mapper.put("MSG-Disk", temp);
     }
 
-    public void filter(AuxiliaryInfo info, Map<DataStructures.Place, double[]> pin, String csvFile)
+    public void savePins(AuxiliaryInfo info, Map<DataStructures.Place, double[]> pins, String csvFile)
             throws IOException {
-        if (pin.isEmpty()) return;
-        File f = new File(csvFile);
+        System.out.println("Pins is empty: "+pins.isEmpty());
+        if (pins.isEmpty()) return;
 
-        if (!f.isFile() || f.isDirectory()) return;
+        final String [] readingValues = new String[info.bandNames.length+2];
+        System.arraycopy(info.bandNames, 0, readingValues, 0, info.bandNames.length);
+        readingValues[info.bandNames.length] = "Lat";
+        readingValues[info.bandNames.length+1] = "Lon";
+
+        final String [] placeValues = {"x", "y", "site_id"};
+
+        final String[] headerValues = new String[readingValues.length + placeValues.length];
+
+        System.arraycopy(placeValues, 0, headerValues, 0, placeValues.length);
+        System.arraycopy(readingValues, 0, headerValues,  placeValues.length, readingValues.length);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(new String[]{"LAT", "LON", "site_id", "sample_time", "filename"})
+                .setHeader(headerValues)
                 .build();
 
+        String[] records = new String[headerValues.length];
         try (final CSVPrinter printer = new CSVPrinter(new FileWriter(csvFile), csvFormat)) {
-            for (Map.Entry<DataStructures.Place, double[]> entry : pin.entrySet()) {
-                printer.printRecord(
-                        Double.toString(entry.getValue()[0]),
-                        Double.toString(entry.getValue()[1]),
-                        entry.getKey().name(),
-                        info.timing,
-                        info.csvFile
-                );
+            for (Map.Entry<DataStructures.Place, double[]> entry : pins.entrySet()) {
+                records[0] = Double.toString(entry.getKey().coordinate().x);
+                records[1] = Double.toString(entry.getKey().coordinate().y);
+                records[2] = entry.getKey().name();
+                for(int i= 0; i < readingValues.length ;i++) {
+                    records[3+i] = Double.toString(entry.getValue()[i]);
+                }
+                printer.printRecord(records);
             }
         }
+        System.out.println("finish writing "+pins.size());
     }
 
     public void doConversion(String fileName, String outputFolder, String country_name, MultiPolygon country_polygon) throws GeosException {
@@ -108,15 +113,15 @@ public class GeosProcessor {
         }
     }
 
-    public void process(String fileName, List<DataStructures.Place> places, String csvFile) throws IOException {
+    public void process(String fileName, List<DataStructures.Place> places, String csvFile, double threshold) throws IOException {
         System.out.println("Converting " + fileName);
         String name = (new File(fileName)).getName();
         String geographical_area = name.split("_")[4];
 
         GeosPixels geos_pixels = area_mapper.get(geographical_area);
         AuxiliaryInfo info = this.readme(fileName, "", "", geos_pixels);
-        Map<DataStructures.Place, double[]> assoc = ProcessorUtilities.scanFile(info, places);
-        this.filter(info, assoc, csvFile);
+        Map<DataStructures.Place, double[]> assoc = ProcessorUtilities.scanFile(info, places, threshold);
+        this.savePins(info, assoc, csvFile);
     }
 
     public AuxiliaryInfo readme(String fileName, String outputFolder,
@@ -158,10 +163,9 @@ public class GeosProcessor {
         AuxiliaryInfo info = new AuxiliaryInfo();
         info.readings = readings;
         info.timing = timing;
-        info.threshold = THRESHOLD;
         info.csvFile = outputFolder + "/seviri_" + product_type + "_"
                 + geographical_area + "_" + temptiming + "_" + country_name + ".csv";
-        info.bandnames = bandNames;
+        info.bandNames = bandNames;
         System.out.println("End to auxiliary info " + fileName);
         return info;
     }
