@@ -38,35 +38,30 @@ public class GeosPixels {
     public List<Locus> loci;
     public MultiPolygon multipolygon = null;
 
-    public final static String[] GEOAREAS =  {"Euro", "SAme", "NAfr", "SAfr"};
 
-    public static Map<String, GeosPixels> loadCoordinates(String geofolder) throws IOException {
+    public static GeosPixels loadCoordinates(String geofolder) throws IOException {
         String geofref_lat = null;
         String geofref_lon = null;
 
-        Map<String, GeosPixels> mapper = new HashMap<>();
+        geofref_lat = "HDF5_LSASAF_MSG_LAT_MSG-Disk";
+        geofref_lon = "HDF5_LSASAF_MSG_LON_MSG-Disk";
 
-        for (String geoarea : GEOAREAS) {
-            geofref_lat = "HDF5_LSASAF_MSG_LAT_" + geoarea + "_4bytesPrecision";
-            geofref_lon = "HDF5_LSASAF_MSG_LON_" + geoarea + "_4bytesPrecision";
-
-            GeosPixels geofref_coord = new GeosPixels();
-            geofref_coord.multipolygon = null;
-            geofref_lat = geofolder + "/" + geofref_lat;
-            geofref_lon = geofolder + "/" + geofref_lon;
-            double[] lat = GeosPixels.readBand(geofref_lat, "LAT");
-            double[] lon = GeosPixels.readBand(geofref_lon, "LON");
-            geofref_coord.loci = new ArrayList<>();
-            for (int l = 0; l < lat.length; l++) {
-                if (!Double.isNaN(lat[l]) && !Double.isNaN(lon[l])) {
-                    Coordinate point = new Coordinate(lon[l], lat[l]);
-                    DataStructures.Locus locus = new DataStructures.Locus(point, l);
-                    geofref_coord.loci.add(locus);
-                }
+        GeosPixels geofref_coord = new GeosPixels();
+        geofref_coord.multipolygon = null;
+        geofref_lat = geofolder + "/" + geofref_lat;
+        geofref_lon = geofolder + "/" + geofref_lon;
+        double[] lat = GeosPixels.readBand(geofref_lat, "LAT");
+        double[] lon = GeosPixels.readBand(geofref_lon, "LON");
+        geofref_coord.loci = new ArrayList<>();
+        for (int l = 0; l < lat.length; l++) {
+            if (!Double.isNaN(lat[l]) && !Double.isNaN(lon[l])) {
+                Coordinate point = new Coordinate(lon[l], lat[l]);
+                DataStructures.Locus locus = new DataStructures.Locus(point, l);
+                geofref_coord.loci.add(locus);
             }
-            mapper.put(geoarea, geofref_coord);
         }
-        return mapper;
+
+        return geofref_coord;
     }
 
     public static double[] readBand(String filename, String bandName) throws IOException {

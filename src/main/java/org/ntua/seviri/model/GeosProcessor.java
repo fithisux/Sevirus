@@ -40,18 +40,18 @@ public class GeosProcessor {
     public static final int THRESHOLD = 5;
     public static final Map<String, String[]> BANDS = ImmutableMap.of(
             "ET", new String[]{"ET", "ET_Q_Flag"},
-            "FVC", new String[]{"FVC", "FVC_QF", "FVC_err"},
-            "LST", new String[]{"LST", "Q_FLAGS", "errorbar_LST"}
+            "FVC-D10", new String[]{"FVC", "FVC_QF", "FVC_err"},
+            "LST", new String[]{"LST", "Q_FLAGS", "errorbar_LST"},
+            "LAT", new String[]{"LAT"},
+            "LON", new String[]{"LON"}
     );
 
-    public Map<String, GeosPixels> area_mapper;
+    public GeosPixels totalCoverage;
     String static_geofolder;
 
     public GeosProcessor(String static_geofolder) throws IOException {
         this.static_geofolder = static_geofolder;
-        this.area_mapper = GeosPixels.loadCoordinates(static_geofolder);
-        var temp = ProcessorUtilities.synthesizeGlobalCoverage();
-        this.area_mapper.put("MSG-Disk", temp);
+        this.totalCoverage = GeosPixels.loadCoordinates(static_geofolder);
     }
 
     public void savePins(AuxiliaryInfo info, Map<DataStructures.Place, double[]> pins, String csvFile)
@@ -93,10 +93,8 @@ public class GeosProcessor {
     public void doConversion(String fileName, String outputFolder, String country_name, MultiPolygon country_polygon) throws GeosException {
         try {
             System.out.println("Converting " + fileName);
-            String name = (new File(fileName)).getName();
-            String geographical_area = name.split("_")[4];
 
-            GeosPixels geos_pixels = area_mapper.get(geographical_area);
+            GeosPixels geos_pixels = this.totalCoverage;
             if (country_polygon != null) {
                 geos_pixels = geos_pixels.maskIt(country_polygon);
             }
@@ -115,11 +113,7 @@ public class GeosProcessor {
 
     public void process(String fileName, List<DataStructures.Place> places, String csvFile, double threshold) throws IOException {
         System.out.println("Converting " + fileName);
-        String name = (new File(fileName)).getName();
-        String geographical_area = name.split("_")[4];
-
-        GeosPixels geos_pixels = area_mapper.get(geographical_area);
-        AuxiliaryInfo info = this.readme(fileName, "", "", geos_pixels);
+        AuxiliaryInfo info = this.readme(fileName, "", "", this.totalCoverage);
         Map<DataStructures.Place, double[]> assoc = ProcessorUtilities.scanFile(info, places, threshold);
         this.savePins(info, assoc, csvFile);
     }

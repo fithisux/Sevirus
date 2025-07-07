@@ -4,7 +4,7 @@
   <groupId>org.ntua</groupId>
   <artifactId>sevirus</artifactId>
   <name>sevirus</name>
-  <version>2.0</version>
+  <version>3.0.alpha1</version>
   <build>
     <plugins>
       <plugin>

@@ -61,7 +61,7 @@ public class MainApp {
     @FXML
     TextField points_file_textfield;
     @FXML
-    ComboBox country_combo_box;
+    ComboBox<String> country_combo_box;
     @FXML
     TextField proximityThreshold;
 
@@ -121,7 +121,8 @@ public class MainApp {
 
     @FXML
     public void shape_file_fcn() {
-        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage, RetentionFileChooser.FilterMode.SHAPE_FILES);
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage,
+                RetentionFileChooser.FilterMode.SHAPE_FILES);
         if (selectedFile == null) {
         } else {
 
@@ -146,9 +147,10 @@ public class MainApp {
                 this.country_combo_box.getSelectionModel().select(0);
                 this.selected_index = 0;
                 this.shape_folder_textfield.setText(shapefile);
-            } catch (IOException e) {
+            } catch (IOException ex) {
                 FxDialogs.showWarning("Problematic shapefile",
                         "Could not read shapefile.");
+                        ex.printStackTrace();
             }
         }
 
@@ -156,7 +158,8 @@ public class MainApp {
 
     @FXML
     public void load_points_fcn() {
-        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage, RetentionFileChooser.FilterMode.CSV_FILES);
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage,
+                RetentionFileChooser.FilterMode.CSV_FILES);
         if (selectedFile == null) {
         } else {
             this.points_file_textfield.setText(selectedFile.getAbsolutePath());
@@ -171,7 +174,8 @@ public class MainApp {
             final GeosProcessor processor = new GeosProcessor(static_folder);
             this.nuovo(processor, "TOTAL");
         } catch (IOException ex) {
-            FxDialogs.showWarning("Problematic run", "Could not run tool");
+            FxDialogs.showError("Problematic run", "Could not run tool");
+            ex.printStackTrace();
         }
     }
 
@@ -183,7 +187,7 @@ public class MainApp {
 
         try {
             thresholdValue = Double.parseDouble(thresholdText);
-        } catch(NullPointerException | NumberFormatException e) {
+        } catch (NullPointerException | NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.initStyle(StageStyle.UTILITY);
             alert.setTitle("Error");
@@ -216,10 +220,13 @@ public class MainApp {
                                 try {
                                     String fileName = input_folder + "/"
                                             + seviri_files[i];
-                                    String productType = fileName.split("_")[3];
-                                    String csvFile = output_folder
-                                            + "/readings" + productType
-                                            + ".csv";
+                                    String name = (new File(fileName)).getName();
+                                    String product_type = name.split("_")[3];
+                                    String geographical_area = name.split("_")[4];
+                                    String temptiming = name.split("_")[5];
+                                    String csvFile = output_folder+"/pixelextract_" + product_type + "_"
+                                            + geographical_area + "_" + temptiming + ".csv";
+                                    System.out.println("Pixel extraction " + fileName + " to " + csvFile);
                                     processor
                                             .process(fileName, places, csvFile, threshold);
                                 } catch (IOException ex) {
@@ -258,7 +265,8 @@ public class MainApp {
             service.start();
 
         } catch (IOException ex) {
-            FxDialogs.showWarning("Problematic run", "Could not run tool");
+            FxDialogs.showError("Problematic run", "Could not run tool");
+            ex.printStackTrace();
         }
     }
 
@@ -278,7 +286,8 @@ public class MainApp {
             processor = new GeosProcessor(static_folder);
 
         } catch (IOException ex) {
-            FxDialogs.showWarning("Problematic run", "Could not run tool");
+            FxDialogs.showError("Problematic run", "Could not run tool");
+            ex.printStackTrace();
             return;
         }
 
@@ -321,7 +330,7 @@ public class MainApp {
                         for (int i = 0; i < seviri_files.length; i++) {
                             try {
                                 processor.doConversion(input_folder + "/"
-                                                + seviri_files[i], output_folder,
+                                        + seviri_files[i], output_folder,
                                         country_name, country_polygon);
                             } catch (GeosException ex) {
                                 return ex.getMessage();
