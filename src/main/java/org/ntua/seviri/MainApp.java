@@ -216,10 +216,12 @@ public class MainApp {
                                 try {
                                     String fileName = input_folder + "/"
                                             + seviri_files[i];
-                                    String productType = fileName.split("_")[3];
-                                    String csvFile = output_folder
-                                            + "/readings" + productType
-                                            + ".csv";
+                                    String name = (new File(fileName)).getName();
+                                    String product_type = name.split("_")[3];
+                                    String geographical_area = name.split("_")[4];
+                                    String temptiming = name.split("_")[5];
+                                    String csvFile = output_folder+"/pixelextract_" + product_type + "_"
+                                            + geographical_area + "_" + temptiming + ".csv";
                                     processor
                                             .process(fileName, places, csvFile, threshold);
                                 } catch (IOException ex) {
