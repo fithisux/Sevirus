@@ -24,10 +24,10 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.ntua.helpers.DataStructures;
-import org.ntua.helpers.ProcessorUtilities;
-import org.ntua.helpers.WriterUtilities;
-import org.ntua.helpers.DataStructures.Locus;
+import org.ntua.generic.ProcessorUtilities;
+import org.ntua.generic.AuxiliaryInfo;
+import org.ntua.generic.DataStructures;
+import org.ntua.generic.DataStructures.Locus;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -40,21 +40,21 @@ public class GeosProcessor {
     public static final int THRESHOLD = 5;
     public static final Map<String, String[]> BANDS = ImmutableMap.of(
             "ET", new String[]{"ET", "ET_Q_Flag"},
-            "FVC", new String[]{"FVC", "FVC_QF", "FVC_err"},
-            "LST", new String[]{"LST", "Q_FLAGS", "errorbar_LST"}
+            "FVC-D10", new String[]{"FVC", "FVC_QF", "FVC_err"},
+            "LST", new String[]{"LST", "Q_FLAGS", "errorbar_LST"},
+            "LAT", new String[]{"LAT"},
+            "LON", new String[]{"LON"}
     );
 
-    public Map<String, GeosPixels> area_mapper;
+    public GeosPixels totalCoverage;
     String static_geofolder;
 
     public GeosProcessor(String static_geofolder) throws IOException {
         this.static_geofolder = static_geofolder;
-        this.area_mapper = GeosPixels.loadCoordinates(static_geofolder);
-        var temp = ProcessorUtilities.synthesizeGlobalCoverage();
-        this.area_mapper.put("MSG-Disk", temp);
+        this.totalCoverage = GeosPixels.loadCoordinates(static_geofolder);
     }
 
-    public void savePins(WriterUtilities info, Map<DataStructures.Place, double[]> pins, String csvFile)
+    public void savePins(AuxiliaryInfo info, Map<DataStructures.Place, double[]> pins, String csvFile)
             throws IOException {
         System.out.println("Pins is empty: "+pins.isEmpty());
         if (pins.isEmpty()) return;
@@ -93,20 +93,18 @@ public class GeosProcessor {
     public void doConversion(String fileName, String outputFolder, String country_name, MultiPolygon country_polygon) throws GeosException {
         try {
             System.out.println("Converting " + fileName);
-            String name = (new File(fileName)).getName();
-            String geographical_area = name.split("_")[4];
 
-            GeosPixels geos_pixels = area_mapper.get(geographical_area);
+            GeosPixels geos_pixels = this.totalCoverage;
             if (country_polygon != null) {
                 geos_pixels = geos_pixels.maskIt(country_polygon);
             }
-            WriterUtilities info = this.readme(fileName, outputFolder, country_name, geos_pixels);
+            AuxiliaryInfo info = this.readme(fileName, outputFolder, country_name, geos_pixels);
             System.out.println("Converted product " + fileName);
             if (info == null) {
                 throw new GeosException("cannot find area");
             }
             System.out.println("Start csv " + fileName);
-            info.saveToNetCDF();
+            info.saveToCSV();
             System.out.println("End csv " + fileName);
         } catch (IOException e) {
             throw new GeosProcessor.GeosException(e.getMessage());
@@ -115,16 +113,12 @@ public class GeosProcessor {
 
     public void process(String fileName, List<DataStructures.Place> places, String csvFile, double threshold) throws IOException {
         System.out.println("Converting " + fileName);
-        String name = (new File(fileName)).getName();
-        String geographical_area = name.split("_")[4];
-
-        GeosPixels geos_pixels = area_mapper.get(geographical_area);
-        WriterUtilities info = this.readme(fileName, "", "", geos_pixels);
+        AuxiliaryInfo info = this.readme(fileName, "", "", this.totalCoverage);
         Map<DataStructures.Place, double[]> assoc = ProcessorUtilities.scanFile(info, places, threshold);
         this.savePins(info, assoc, csvFile);
     }
 
-    public WriterUtilities readme(String fileName, String outputFolder,
+    public AuxiliaryInfo readme(String fileName, String outputFolder,
                                 String country_name, GeosPixels geos_pixels) throws IOException {
         String name = (new File(fileName)).getName();
         String product_type = name.split("_")[3];
@@ -160,11 +154,11 @@ public class GeosProcessor {
         }
 
         System.out.println("Start to auxiliary info " + fileName);
-        WriterUtilities info = new WriterUtilities();
+        AuxiliaryInfo info = new AuxiliaryInfo();
         info.readings = readings;
         info.timing = timing;
-        info.netCDFFile = outputFolder + "/seviri_" + product_type + "_"
-                + geographical_area + "_" + temptiming + "_" + country_name + ".nc";
+        info.csvFile = outputFolder + "/seviri_" + product_type + "_"
+                + geographical_area + "_" + temptiming + "_" + country_name + ".csv";
         info.bandNames = bandNames;
         System.out.println("End to auxiliary info " + fileName);
         return info;

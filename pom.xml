@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ntua</groupId>
     <artifactId>sevirus</artifactId>
-    <version>2.0</version>
+    <version>3.0.alpha1</version>
     <packaging>jar</packaging>
     <name>sevirus</name>
     <repositories>
