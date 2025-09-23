@@ -20,6 +20,8 @@
  */
 package org.ntua.seviri;
 
+import org.ntua.seviri.ui.Sevirus;
+
 public class SeviriLauncher {
 
     public static void main(String[] args) {

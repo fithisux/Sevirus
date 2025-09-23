@@ -18,7 +18,7 @@
 	Contributors:
    Vasileios I. Anagnostopoulos - initial API and implementation under subcontract for Aberystwyth University
  */
-package org.ntua.seviri;
+package org.ntua.seviri.ui;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -30,6 +30,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+
+import org.ntua.seviri.SeviriLauncher;
 
 public class Sevirus extends Application {
 

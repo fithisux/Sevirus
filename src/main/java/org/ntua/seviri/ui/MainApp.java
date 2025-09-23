@@ -18,7 +18,7 @@
 	Contributors:
    Vasileios I. Anagnostopoulos - initial API and implementation under subcontract for Aberystwyth University
  */
-package org.ntua.seviri;
+package org.ntua.seviri.ui;
 
 import br.atualy.devolucaodevenda.util.FxDialogs;
 import javafx.collections.FXCollections;

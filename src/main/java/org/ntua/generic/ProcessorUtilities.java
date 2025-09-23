@@ -111,8 +111,8 @@ public class ProcessorUtilities {
         return distance / 1000;
     }
 
-    public static Map<Place, double[]> scanFile(AuxiliaryInfo info, List<Place> places, double threshold) {
-        System.out.println("Product : " + info.csvFile);
+    public static Map<Place, double[]> scanFile(WriterUtilities info, List<Place> places, double threshold) {
+        System.out.println("Product : " + info.netCDFFile);
         Map<Place, double[]> assoc = new HashMap<>();
         System.out.println("Start scanning for places");
         for (Place place : places) {

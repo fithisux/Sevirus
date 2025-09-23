@@ -119,17 +119,18 @@
     </repository>
   </repositories>
   <properties>
-    <spotless.version>2.44.0.BETA4</spotless.version>
-    <netcdfJavaVersion>5.8.0</netcdfJavaVersion>
-    <maven.compiler.source>23</maven.compiler.source>
+    <spotless.version>2.46.1</spotless.version>
+    <netcdfJavaVersion>5.9.1</netcdfJavaVersion>
+    <maven.compiler.source>24</maven.compiler.source>
     <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
     <slf4jVersion>2.0.17</slf4jVersion>
-    <geotools.version>32.2</geotools.version>
+    <geotools.version>33.2</geotools.version>
     <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
     <jts.version>1.20.0</jts.version>
-    <maven.compiler.target>23</maven.compiler.target>
+    <apache-commons-csv.version>1.14.1</apache-commons-csv.version>
+    <maven.compiler.target>24</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <proj4j.version>1.4.0</proj4j.version>
-    <javafx.version>24.0.1</javafx.version>
+    <proj4j.version>1.4.1</proj4j.version>
+    <javafx.version>25</javafx.version>
   </properties>
 </project>

@@ -1,4 +1,4 @@
-package org.ntua.seviri;
+package org.ntua.seviri.ui;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.DirectoryChooser;
