@@ -2,8 +2,8 @@ package org.ntua.seviri;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.ntua.generic.DataStructures.Locus;
-import org.ntua.generic.ProcessorUtilities;
+import org.ntua.helpers.ProcessorUtilities;
+import org.ntua.helpers.DataStructures.Locus;
 import org.ntua.seviri.model.GeosPixels;
 
 import java.io.File;

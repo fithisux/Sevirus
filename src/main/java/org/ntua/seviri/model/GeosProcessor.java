@@ -24,10 +24,10 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.ntua.generic.ProcessorUtilities;
-import org.ntua.generic.WriterUtilities;
-import org.ntua.generic.DataStructures;
-import org.ntua.generic.DataStructures.Locus;
+import org.ntua.helpers.DataStructures;
+import org.ntua.helpers.ProcessorUtilities;
+import org.ntua.helpers.WriterUtilities;
+import org.ntua.helpers.DataStructures.Locus;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -24,8 +24,9 @@ import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
-import org.ntua.generic.DataStructures;
-import org.ntua.generic.DataStructures.Locus;
+import org.ntua.helpers.DataStructures;
+import org.ntua.helpers.DataStructures.Locus;
+
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
