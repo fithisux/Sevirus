@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ntua</groupId>
     <artifactId>sevirus</artifactId>
-    <version>2.0</version>
+    <version>3.0</version>
     <packaging>jar</packaging>
     <name>sevirus</name>
     <repositories>
@@ -27,22 +27,29 @@
     </repositories>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spotless.version>2.44.0.BETA4</spotless.version>
-        <javafx.version>24.0.1</javafx.version>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
+        <spotless.version>2.46.1</spotless.version>
+        <javafx.version>25</javafx.version>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
         <slf4jVersion>2.0.17</slf4jVersion>
-        <netcdfJavaVersion>5.8.0</netcdfJavaVersion>
-        <geotools.version>32.2</geotools.version>
+        <netcdfJavaVersion>5.9.1</netcdfJavaVersion>
+        <geotools.version>33.2</geotools.version>
         <jts.version>1.20.0</jts.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
-        <proj4j.version>1.4.0</proj4j.version>
+        <proj4j.version>1.4.1</proj4j.version>
+        <apache-commons-csv.version>1.14.1</apache-commons-csv.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>cdm-core</artifactId>
+            <version>${netcdfJavaVersion}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>cdm-misc</artifactId>
             <version>${netcdfJavaVersion}</version>
             <scope>compile</scope>
         </dependency>
@@ -94,7 +101,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>1.12.0</version>
+            <version>${apache-commons-csv.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
         <dependency>

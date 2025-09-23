@@ -18,7 +18,7 @@
 	Contributors:
    Vasileios I. Anagnostopoulos - initial API and implementation under subcontract for Aberystwyth University
  */
-package org.ntua.seviri;
+package org.ntua.seviri.ui;
 
 import br.atualy.devolucaodevenda.util.FxDialogs;
 import javafx.collections.FXCollections;
@@ -35,8 +35,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.ntua.generic.ProcessorUtilities;
-import org.ntua.generic.DataStructures.Place;
+import org.ntua.helpers.ProcessorUtilities;
+import org.ntua.helpers.DataStructures.Place;
 import org.ntua.seviri.model.GeosPixels;
 import org.ntua.seviri.model.GeosProcessor;
 import org.ntua.seviri.model.GeosProcessor.GeosException;
@@ -61,7 +61,7 @@ public class MainApp {
     @FXML
     TextField points_file_textfield;
     @FXML
-    ComboBox country_combo_box;
+    ComboBox<String> country_combo_box;
     @FXML
     TextField proximityThreshold;
 
@@ -121,7 +121,8 @@ public class MainApp {
 
     @FXML
     public void shape_file_fcn() {
-        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage, RetentionFileChooser.FilterMode.SHAPE_FILES);
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage,
+                RetentionFileChooser.FilterMode.SHAPE_FILES);
         if (selectedFile == null) {
         } else {
 
@@ -147,6 +148,7 @@ public class MainApp {
                 this.selected_index = 0;
                 this.shape_folder_textfield.setText(shapefile);
             } catch (IOException e) {
+            	e.printStackTrace();
                 FxDialogs.showWarning("Problematic shapefile",
                         "Could not read shapefile.");
             }
@@ -156,7 +158,8 @@ public class MainApp {
 
     @FXML
     public void load_points_fcn() {
-        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage, RetentionFileChooser.FilterMode.CSV_FILES);
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage,
+                RetentionFileChooser.FilterMode.CSV_FILES);
         if (selectedFile == null) {
         } else {
             this.points_file_textfield.setText(selectedFile.getAbsolutePath());
@@ -171,6 +174,7 @@ public class MainApp {
             final GeosProcessor processor = new GeosProcessor(static_folder);
             this.nuovo(processor, "TOTAL");
         } catch (IOException ex) {
+        	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
         }
     }
@@ -184,6 +188,7 @@ public class MainApp {
         try {
             thresholdValue = Double.parseDouble(thresholdText);
         } catch(NullPointerException | NumberFormatException e) {
+        	e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.initStyle(StageStyle.UTILITY);
             alert.setTitle("Error");
@@ -222,10 +227,13 @@ public class MainApp {
                                     String temptiming = name.split("_")[5];
                                     String csvFile = output_folder+"/pixelextract_" + product_type + "_"
                                             + geographical_area + "_" + temptiming + ".csv";
+                                    System.out.println("Pixel extraction " + fileName + " to " + csvFile);
                                     processor
                                             .process(fileName, places, csvFile, threshold);
                                 } catch (IOException ex) {
+									ex.printStackTrace();
                                     return ex.getMessage();
+        
                                 }
                                 updateProgress(i + 1, seviri_files.length);
                                 updateMessage("Found " + (i + 1) + " of "
@@ -260,7 +268,8 @@ public class MainApp {
             service.start();
 
         } catch (IOException ex) {
-            FxDialogs.showWarning("Problematic run", "Could not run tool");
+        	ex.printStackTrace();
+			FxDialogs.showWarning("Problematic run", "Could not run tool");
         }
     }
 
@@ -280,6 +289,7 @@ public class MainApp {
             processor = new GeosProcessor(static_folder);
 
         } catch (IOException ex) {
+        	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
             return;
         }
@@ -323,9 +333,10 @@ public class MainApp {
                         for (int i = 0; i < seviri_files.length; i++) {
                             try {
                                 processor.doConversion(input_folder + "/"
-                                                + seviri_files[i], output_folder,
+                                        + seviri_files[i], output_folder,
                                         country_name, country_polygon);
                             } catch (GeosException ex) {
+                            	ex.printStackTrace();
                                 return ex.getMessage();
                             }
                             updateProgress(++step, steps);

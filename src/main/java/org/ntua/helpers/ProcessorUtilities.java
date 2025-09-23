@@ -18,7 +18,7 @@
 	Contributors:
    Vasileios I. Anagnostopoulos - initial API and implementation under subcontract for Aberystwyth University
  */
-package org.ntua.generic;
+package org.ntua.helpers;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -37,7 +37,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.MultiPolygon;
-import org.ntua.generic.DataStructures.Place;
+import org.ntua.helpers.DataStructures.Place;
 import org.ntua.seviri.model.GeosPixels;
 
 import java.io.File;
@@ -111,8 +111,8 @@ public class ProcessorUtilities {
         return distance / 1000;
     }
 
-    public static Map<Place, double[]> scanFile(AuxiliaryInfo info, List<Place> places, double threshold) {
-        System.out.println("Product : " + info.csvFile);
+    public static Map<Place, double[]> scanFile(WriterUtilities info, List<Place> places, double threshold) {
+        System.out.println("Product : " + info.netCDFFile);
         Map<Place, double[]> assoc = new HashMap<>();
         System.out.println("Start scanning for places");
         for (Place place : places) {
@@ -143,48 +143,6 @@ public class ProcessorUtilities {
         }
         System.out.println("Finished scanning for places");
         return assoc;
-    }
-
-    public static GeosPixels synthesizeGlobalCoverage() {
-        int globalsize = 3712;
-        double COFF = 1856;
-        double LOFF = 1856;
-        double CFAC = 13642337;
-        double LFAC = 13642337;
-        int scale = 1 << 16;
-        double p1 = 42164;
-        double p2 = 1.006803;
-        double p3 = 1737121856;
-        GeosPixels extra_coord = new GeosPixels();
-        extra_coord.multipolygon = null;
-        extra_coord.loci = new ArrayList<>();
-        for (int i = 0; i < globalsize; i++) {
-            double x = (i + 1 - COFF) * scale / CFAC;
-            double cosx = Math.cos(Math.toRadians(x));
-            double sinx = Math.sin(Math.toRadians(x));
-            for (int j = 0; j < globalsize; j++) {
-                double y = (j + 1 - LOFF) * scale / LFAC;
-                double cosy = Math.cos(Math.toRadians(y));
-                double siny = Math.sin(Math.toRadians(y));
-
-                double sdsquared = Math.pow(p1 * cosx * cosy, 2) - (Math.pow(cosy, 2) + p2 * Math.pow(siny, 2)) * p3;
-                if (sdsquared < 0) {
-                    sdsquared = 0;
-                }
-                double sd = Math.sqrt(sdsquared);
-                double sn = (p1 * cosx * cosy - sd) / (Math.pow(cosy, 2) + p2 * Math.pow(siny, 2));
-                double s1 = p1 - sn * cosx * cosy;
-                double s2 = sn * sinx * cosy;
-                double s3 = -sn * siny;
-                double sxy = Math.sqrt(s1 * s1 + s2 * s2);
-                double glon = Math.toDegrees(Math.atan(s2 / s1));
-                double glat = Math.toDegrees(Math.atan(p2 * (s3 / sxy)));
-                Coordinate point = new Coordinate(glon, glat);
-                DataStructures.Locus locus = new DataStructures.Locus(point, extra_coord.loci.size());
-                extra_coord.loci.add(locus);
-            }
-        }
-        return extra_coord;
     }
 
     public static List<Place> readPlaces(String fileName) throws IOException {

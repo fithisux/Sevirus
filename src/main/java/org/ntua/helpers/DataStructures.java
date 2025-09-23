@@ -18,7 +18,7 @@
 	Contributors:
    Vasileios I. Anagnostopoulos - initial API and implementation under subcontract for Aberystwyth University
  */
-package org.ntua.generic;
+package org.ntua.helpers;
 
 
 import org.locationtech.jts.geom.Coordinate;
