@@ -1,4 +1,4 @@
-# Sevirus 2.0
+# Sevirus 3.0
 
 ## Description
 

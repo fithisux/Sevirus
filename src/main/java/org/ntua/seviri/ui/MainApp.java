@@ -147,15 +147,10 @@ public class MainApp {
                 this.country_combo_box.getSelectionModel().select(0);
                 this.selected_index = 0;
                 this.shape_folder_textfield.setText(shapefile);
-<<<<<<< HEAD:src/main/java/org/ntua/seviri/ui/MainApp.java
             } catch (IOException e) {
             	e.printStackTrace();
-=======
-            } catch (IOException ex) {
->>>>>>> origin/newgen:src/main/java/org/ntua/seviri/MainApp.java
                 FxDialogs.showWarning("Problematic shapefile",
                         "Could not read shapefile.");
-                        ex.printStackTrace();
             }
         }
 
@@ -179,13 +174,8 @@ public class MainApp {
             final GeosProcessor processor = new GeosProcessor(static_folder);
             this.nuovo(processor, "TOTAL");
         } catch (IOException ex) {
-<<<<<<< HEAD:src/main/java/org/ntua/seviri/ui/MainApp.java
         	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
-=======
-            FxDialogs.showError("Problematic run", "Could not run tool");
-            ex.printStackTrace();
->>>>>>> origin/newgen:src/main/java/org/ntua/seviri/MainApp.java
         }
     }
 
@@ -197,12 +187,8 @@ public class MainApp {
 
         try {
             thresholdValue = Double.parseDouble(thresholdText);
-<<<<<<< HEAD:src/main/java/org/ntua/seviri/ui/MainApp.java
         } catch(NullPointerException | NumberFormatException e) {
         	e.printStackTrace();
-=======
-        } catch (NullPointerException | NumberFormatException e) {
->>>>>>> origin/newgen:src/main/java/org/ntua/seviri/MainApp.java
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.initStyle(StageStyle.UTILITY);
             alert.setTitle("Error");
@@ -282,13 +268,8 @@ public class MainApp {
             service.start();
 
         } catch (IOException ex) {
-<<<<<<< HEAD:src/main/java/org/ntua/seviri/ui/MainApp.java
         	ex.printStackTrace();
 			FxDialogs.showWarning("Problematic run", "Could not run tool");
-=======
-            FxDialogs.showError("Problematic run", "Could not run tool");
-            ex.printStackTrace();
->>>>>>> origin/newgen:src/main/java/org/ntua/seviri/MainApp.java
         }
     }
 
@@ -308,13 +289,8 @@ public class MainApp {
             processor = new GeosProcessor(static_folder);
 
         } catch (IOException ex) {
-<<<<<<< HEAD:src/main/java/org/ntua/seviri/ui/MainApp.java
         	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
-=======
-            FxDialogs.showError("Problematic run", "Could not run tool");
-            ex.printStackTrace();
->>>>>>> origin/newgen:src/main/java/org/ntua/seviri/MainApp.java
             return;
         }
 
