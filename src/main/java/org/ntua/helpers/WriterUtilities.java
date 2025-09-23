@@ -69,27 +69,9 @@ public class WriterUtilities {
 
 		System.out.println(nx + "   " + ny);
 
-		double[][] data = new double[nx * ny][bandNames.length];
-		Arrays.fill(data, Double.NaN);
+		double[] data = new double[nx * ny];
+		Arrays.fill(data, MISSING_VALUE);
 
-		int index = 0;
-		for (var latIndex : latList) {
-			for (var lonIndex : lonList) {
-				var someValues = pts.get(latIndex).get(lonIndex);
-				if (someValues == null) {
-					for(int i=0;i<bandNames.length;i++) {
-						data[index][i] = MISSING_VALUE;
-					}
-				} else {
-					for(int i=0;i<bandNames.length;i++) {
-						var someValue = someValues[i];
-						data[index][i] = Double.isNaN(someValue) ? MISSING_VALUE : someValue;
-					}
-				}
-				
-				index++;
-			}
-		}
 
 		double[] latArr = new double[nx];
 		for (int i = 0; i < latList.size(); i++) {
@@ -109,10 +91,7 @@ public class WriterUtilities {
 		Array latCachedData = Array.factory(DataType.DOUBLE, new int[] { nx }, latArr);
 		Array lonCachedData = Array.factory(DataType.DOUBLE, new int[] { ny }, lonArr);
 		
-		Array[] valueCachedData = new Array[bandNames.length];
-		for(int i=0;i<bandNames.length;i++) {
-			valueCachedData[i] = Array.factory(DataType.DOUBLE, new int[] { nx, ny }, data[i]);
-		}
+		
 
 		NetcdfFormatWriter.Builder builder = NetcdfFormatWriter.createNewNetcdf3(netCDFFile);
 		builder.addDimension(lonDim);
@@ -146,8 +125,21 @@ public class WriterUtilities {
 			someVar = writer.findVariable("lon");
 			writer.write(someVar, lonCachedData);
 			for(int i=0;i<bandNames.length;i++) {
+				int index = 0;
+				for (var latIndex : latList) {
+					for (var lonIndex : lonList) {
+						var someValues = pts.get(latIndex).get(lonIndex);
+						if (someValues == null) {
+							data[index++] = MISSING_VALUE;
+						} else {
+							var someValue = someValues[i];
+							data[index++] = Double.isNaN(someValue) ? MISSING_VALUE : someValue;
+						}
+					}
+				}
+				Array valueCachedData = Array.factory(DataType.DOUBLE, new int[] { nx, ny }, data);
 				someVar = writer.findVariable(bandNames[i]);
-				writer.write(someVar, valueCachedData[i]);
+				writer.write(someVar, valueCachedData);
 			}
 		}catch(InvalidRangeException e) {
 			throw new IOException("Invalid Range");
