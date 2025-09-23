@@ -147,6 +147,7 @@ public class MainApp {
                 this.selected_index = 0;
                 this.shape_folder_textfield.setText(shapefile);
             } catch (IOException e) {
+            	e.printStackTrace();
                 FxDialogs.showWarning("Problematic shapefile",
                         "Could not read shapefile.");
             }
@@ -171,6 +172,7 @@ public class MainApp {
             final GeosProcessor processor = new GeosProcessor(static_folder);
             this.nuovo(processor, "TOTAL");
         } catch (IOException ex) {
+        	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
         }
     }
@@ -184,6 +186,7 @@ public class MainApp {
         try {
             thresholdValue = Double.parseDouble(thresholdText);
         } catch(NullPointerException | NumberFormatException e) {
+        	e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.initStyle(StageStyle.UTILITY);
             alert.setTitle("Error");
@@ -225,7 +228,9 @@ public class MainApp {
                                     processor
                                             .process(fileName, places, csvFile, threshold);
                                 } catch (IOException ex) {
+									ex.printStackTrace();
                                     return ex.getMessage();
+        
                                 }
                                 updateProgress(i + 1, seviri_files.length);
                                 updateMessage("Found " + (i + 1) + " of "
@@ -260,7 +265,8 @@ public class MainApp {
             service.start();
 
         } catch (IOException ex) {
-            FxDialogs.showWarning("Problematic run", "Could not run tool");
+        	ex.printStackTrace();
+			FxDialogs.showWarning("Problematic run", "Could not run tool");
         }
     }
 
@@ -280,6 +286,7 @@ public class MainApp {
             processor = new GeosProcessor(static_folder);
 
         } catch (IOException ex) {
+        	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
             return;
         }
@@ -326,6 +333,7 @@ public class MainApp {
                                                 + seviri_files[i], output_folder,
                                         country_name, country_polygon);
                             } catch (GeosException ex) {
+                            	ex.printStackTrace();
                                 return ex.getMessage();
                             }
                             updateProgress(++step, steps);

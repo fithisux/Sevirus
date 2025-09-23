@@ -114,6 +114,7 @@ public class CsvToGeoTiffNetcdf {
 			someVar = writer.findVariable("val");
 			writer.write(someVar, valueCachedData);
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.out.println("Could not write");
 		}
 	}

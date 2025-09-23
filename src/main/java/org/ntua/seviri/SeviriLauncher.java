@@ -24,7 +24,7 @@ import org.ntua.seviri.ui.Sevirus;
 
 public class SeviriLauncher {
 
-    public static void main(String[] args) {
-        Sevirus.main(args);
-    }
+	public static void main(String[] args) {
+		Sevirus.main(args);
+	}
 }
