@@ -103,9 +103,9 @@ public class GeosProcessor {
             if (info == null) {
                 throw new GeosException("cannot find area");
             }
-            System.out.println("Start csv " + fileName);
+            System.out.println("Start nc " + fileName);
             info.saveToNetCDF();
-            System.out.println("End csv " + fileName);
+            System.out.println("End nc " + fileName);
         } catch (IOException e) {
             throw new GeosProcessor.GeosException(e.getMessage());
         }
@@ -158,7 +158,7 @@ public class GeosProcessor {
         info.readings = readings;
         info.timing = timing;
         info.netCDFFile = outputFolder + "/seviri_" + product_type + "_"
-                + geographical_area + "_" + temptiming + "_" + country_name + ".csv";
+                + geographical_area + "_" + temptiming + "_" + country_name + ".nc";
         info.bandNames = bandNames;
         System.out.println("End to auxiliary info " + fileName);
         return info;

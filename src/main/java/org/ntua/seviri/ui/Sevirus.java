@@ -31,8 +31,6 @@ import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
-import org.ntua.seviri.SeviriLauncher;
-
 public class Sevirus extends Application {
 
     public Stage primaryStage;

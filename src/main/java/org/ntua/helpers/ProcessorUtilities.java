@@ -38,7 +38,6 @@ import org.geotools.feature.FeatureIterator;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.ntua.helpers.DataStructures.Place;
-import org.ntua.seviri.model.GeosPixels;
 
 import java.io.File;
 import java.io.IOException;
@@ -112,7 +111,6 @@ public class ProcessorUtilities {
     }
 
     public static Map<Place, double[]> scanFile(WriterUtilities info, List<Place> places, double threshold) {
-        System.out.println("Product : " + info.netCDFFile);
         Map<Place, double[]> assoc = new HashMap<>();
         System.out.println("Start scanning for places");
         for (Place place : places) {

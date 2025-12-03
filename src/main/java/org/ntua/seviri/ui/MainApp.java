@@ -226,7 +226,7 @@ public class MainApp {
                                     String geographical_area = name.split("_")[4];
                                     String temptiming = name.split("_")[5];
                                     String csvFile = output_folder+"/pixelextract_" + product_type + "_"
-                                            + geographical_area + "_" + temptiming + ".csv";
+                                            + geographical_area + "_" + temptiming + ".nc";
                                     System.out.println("Pixel extraction " + fileName + " to " + csvFile);
                                     processor
                                             .process(fileName, places, csvFile, threshold);
