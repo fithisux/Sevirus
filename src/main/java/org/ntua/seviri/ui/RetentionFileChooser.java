@@ -17,6 +17,7 @@ public class RetentionFileChooser {
     public enum FilterMode {
         //Setup supported filters
         CSV_FILES("csv files (*.csv)", "*.csv"),
+        NC_FILES("netcdf files (*.nc)", "*.nc"),
         SHAPE_FILES("shp files (*.shp)", "*.shp");
 
         private FileChooser.ExtensionFilter extensionFilter;

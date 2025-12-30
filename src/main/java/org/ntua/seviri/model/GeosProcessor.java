@@ -47,11 +47,9 @@ public class GeosProcessor {
     );
 
     public GeosPixels totalCoverage;
-    String static_geofolder;
 
-    public GeosProcessor(String static_geofolder) throws IOException {
-        this.static_geofolder = static_geofolder;
-        this.totalCoverage = GeosPixels.loadCoordinates(static_geofolder);
+    public GeosProcessor(String geofref_lat, String geofref_lon) throws IOException, GeosPixels.GeosPixelsException {
+        this.totalCoverage = GeosPixels.loadCoordinates(geofref_lat, geofref_lon);
     }
 
     public void savePins(WriterUtilities info, Map<DataStructures.Place, double[]> pins, String csvFile)

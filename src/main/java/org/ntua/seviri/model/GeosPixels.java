@@ -31,26 +31,30 @@ import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 public class GeosPixels {
+	
+	public static class GeosPixelsException extends Exception {
+		public GeosPixelsException() {
+			super("Both lat and lon files are required");
+		}
+	}
 
     public List<Locus> loci;
     public MultiPolygon multipolygon = null;
 
 
-    public static GeosPixels loadCoordinates(String geofolder) throws IOException {
-        String geofref_lat = null;
-        String geofref_lon = null;
+    public static GeosPixels loadCoordinates(String geofref_lat, String geofref_lon) throws IOException, GeosPixelsException {
 
-        geofref_lat = "HDF5_LSASAF_MSG_LAT_MSG-Disk";
-        geofref_lon = "HDF5_LSASAF_MSG_LON_MSG-Disk";
-
+    	if(Objects.isNull(geofref_lat) || Objects.isNull(geofref_lon)) {
+    		throw new GeosPixelsException();
+    	}
         GeosPixels geofref_coord = new GeosPixels();
         geofref_coord.multipolygon = null;
-        geofref_lat = geofolder + "/" + geofref_lat;
-        geofref_lon = geofolder + "/" + geofref_lon;
         double[] lat = GeosPixels.readBand(geofref_lat, "LAT");
         double[] lon = GeosPixels.readBand(geofref_lon, "LON");
         geofref_coord.loci = new ArrayList<>();

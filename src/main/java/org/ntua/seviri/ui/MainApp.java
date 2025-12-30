@@ -55,7 +55,9 @@ public class MainApp {
     @FXML
     TextField output_folder_textfield;
     @FXML
-    TextField static_folder_textfield;
+    TextField static_lat_textfield;
+    @FXML
+    TextField static_lon_textfield;
     @FXML
     TextField shape_folder_textfield;
     @FXML
@@ -110,11 +112,23 @@ public class MainApp {
     }
 
     @FXML
-    public void static_folder_fcn() {
-        File selectedDirectory = RetentionFileChooser.showDirOpenDialog(this.primaryStage);
-        if (selectedDirectory == null) {
+    public void static_lat_fcn() {
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage,
+                RetentionFileChooser.FilterMode.NC_FILES);
+        if (selectedFile == null) {
         } else {
-            this.static_folder_textfield.setText(selectedDirectory
+            this.static_lat_textfield.setText(selectedFile
+                    .getAbsolutePath());
+        }
+    }
+    
+    @FXML
+    public void static_lon_fcn() {
+        File selectedFile = RetentionFileChooser.showOpenDialog(this.primaryStage,
+                RetentionFileChooser.FilterMode.NC_FILES);
+        if (selectedFile == null) {
+        } else {
+            this.static_lon_textfield.setText(selectedFile
                     .getAbsolutePath());
         }
     }
@@ -169,13 +183,19 @@ public class MainApp {
 
     @FXML
     public void export_fcn() {
-        String static_folder = this.static_folder_textfield.getText();
+    	String geofref_lat = this.static_lat_textfield.getText();
+    	String geofref_lon = this.static_lon_textfield.getText();  
+        
         try {
-            final GeosProcessor processor = new GeosProcessor(static_folder);
+            final GeosProcessor processor = new GeosProcessor(geofref_lat, geofref_lon);
             this.nuovo(processor, "TOTAL");
         } catch (IOException ex) {
         	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
+        } catch (GeosPixels.GeosPixelsException ex) {
+        	ex.printStackTrace();
+            FxDialogs.showWarning("Problematic run", ex.getMessage());
+            return;
         }
     }
 
@@ -198,7 +218,8 @@ public class MainApp {
             this.proximityThreshold.setText("5");
             return;
         }
-        String static_folder = this.static_folder_textfield.getText();
+        String geofref_lat = this.static_lat_textfield.getText();
+    	String geofref_lon = this.static_lon_textfield.getText();  
         String input_folder = this.seviri_folder_textfield.getText();
         String output_folder = this.output_folder_textfield.getText();
         String places_file = this.points_file_textfield.getText();
@@ -206,7 +227,7 @@ public class MainApp {
         final double threshold = thresholdValue;
 
         try {
-            final GeosProcessor processor = new GeosProcessor(static_folder);
+            final GeosProcessor processor = new GeosProcessor(geofref_lat, geofref_lon);
             List<Place> places = ProcessorUtilities.readPlaces(places_file);
 
             Service<String> service = new Service<String>() {
@@ -270,6 +291,10 @@ public class MainApp {
         } catch (IOException ex) {
         	ex.printStackTrace();
 			FxDialogs.showWarning("Problematic run", "Could not run tool");
+        } catch (GeosPixels.GeosPixelsException ex) {
+        	ex.printStackTrace();
+            FxDialogs.showWarning("Problematic run", ex.getMessage());
+            return;
         }
     }
 
@@ -283,14 +308,19 @@ public class MainApp {
 
     @FXML
     public void execute_seviri_fcn() {
-        String static_folder = this.static_folder_textfield.getText();
+    	String geofref_lat = this.static_lat_textfield.getText();
+    	String geofref_lon = this.static_lon_textfield.getText();
         GeosProcessor processor = null;
         try {
-            processor = new GeosProcessor(static_folder);
+            processor = new GeosProcessor(geofref_lat, geofref_lon);
 
         } catch (IOException ex) {
         	ex.printStackTrace();
             FxDialogs.showWarning("Problematic run", "Could not run tool");
+            return;
+        } catch (GeosPixels.GeosPixelsException ex) {
+        	ex.printStackTrace();
+            FxDialogs.showWarning("Problematic run", ex.getMessage());
             return;
         }
 

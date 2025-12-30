@@ -1,1 +1,1 @@
-java -Xmx4096m -cp shade\sevirus-3.1.jar org.ntua.seviri.SeviriLauncher
+java -Xmx4096m -cp shade\sevirus-4.0.jar org.ntua.seviri.SeviriLauncher
